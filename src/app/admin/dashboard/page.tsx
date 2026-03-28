@@ -106,7 +106,7 @@ export default function AdminDashboard() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-950">
+            <div className="min-h-screen bg-slate-50">
                 <Navbar isAdmin />
                 <div className="mx-auto max-w-7xl px-4 py-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -121,16 +121,16 @@ export default function AdminDashboard() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-950">
+        <div className="min-h-screen bg-slate-50">
             <Navbar isAdmin />
 
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
                 {/* Welcome */}
                 <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-gray-100">
+                    <h1 className="text-2xl font-bold text-slate-900">
                         Welcome back, <span className="gradient-text">{adminName}</span>
                     </h1>
-                    <p className="text-gray-400 text-sm mt-1">Here&apos;s your assessment overview</p>
+                    <p className="text-slate-600 text-sm mt-1">Here&apos;s your assessment overview</p>
                 </div>
 
                 {/* Analytics */}
@@ -166,7 +166,7 @@ export default function AdminDashboard() {
 
                 {/* Actions */}
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-lg font-semibold text-gray-200">Your Tests</h2>
+                    <h2 className="text-lg font-semibold text-slate-800">Your Tests</h2>
                     <Link href="/admin/tests/create" className="btn-primary text-sm">
                         + Create Test
                     </Link>
@@ -176,8 +176,8 @@ export default function AdminDashboard() {
                 {tests.length === 0 ? (
                     <div className="glass-card p-12 text-center">
                         <div className="text-4xl mb-4">📋</div>
-                        <h3 className="text-lg font-medium text-gray-300 mb-2">No tests yet</h3>
-                        <p className="text-gray-500 text-sm mb-6">Create your first coding test to start evaluating candidates</p>
+                        <h3 className="text-lg font-medium text-slate-700 mb-2">No tests yet</h3>
+                        <p className="text-slate-500 text-sm mb-6">Create your first coding test to start evaluating candidates</p>
                         <Link href="/admin/tests/create" className="btn-primary text-sm">
                             Create Your First Test
                         </Link>
@@ -187,40 +187,40 @@ export default function AdminDashboard() {
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="border-b border-gray-700/50">
-                                        <th className="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Test</th>
-                                        <th className="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Problems</th>
-                                        <th className="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Duration</th>
-                                        <th className="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Candidates</th>
-                                        <th className="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
-                                        <th className="text-right px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Actions</th>
+                                    <tr className="border-b border-slate-300/50">
+                                        <th className="text-left px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Test</th>
+                                        <th className="text-left px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Problems</th>
+                                        <th className="text-left px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Duration</th>
+                                        <th className="text-left px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Candidates</th>
+                                        <th className="text-left px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
+                                        <th className="text-right px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-800/50">
                                     {tests.map((test) => (
-                                        <tr key={test._id} className="hover:bg-gray-800/30 transition-smooth">
+                                        <tr key={test._id} className="hover:bg-slate-100/30 transition-smooth">
                                             <td className="px-6 py-4">
-                                                <div className="font-medium text-gray-200">{test.title}</div>
-                                                <div className="text-xs text-gray-500 mt-0.5">
+                                                <div className="font-medium text-slate-800">{test.title}</div>
+                                                <div className="text-xs text-slate-500 mt-0.5">
                                                     {new Date(test.createdAt).toLocaleDateString()}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-400">
+                                            <td className="px-6 py-4 text-sm text-slate-600">
                                                 {test.problems?.length || 0}
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-400">
+                                            <td className="px-6 py-4 text-sm text-slate-600">
                                                 {test.duration} min
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className="text-sm text-gray-300">{test.completedCount}</span>
-                                                <span className="text-gray-600"> / {test.candidateCount}</span>
+                                                <span className="text-sm text-slate-700">{test.completedCount}</span>
+                                                <span className="text-slate-400"> / {test.candidateCount}</span>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${test.isActive
                                                         ? 'bg-emerald-500/15 text-emerald-400'
-                                                        : 'bg-gray-500/15 text-gray-400'
+                                                        : 'bg-slate-500/15 text-slate-600'
                                                     }`}>
-                                                    <span className={`h-1.5 w-1.5 rounded-full ${test.isActive ? 'bg-emerald-400' : 'bg-gray-500'}`} />
+                                                    <span className={`h-1.5 w-1.5 rounded-full ${test.isActive ? 'bg-emerald-400' : 'bg-slate-500'}`} />
                                                     {test.isActive ? 'Active' : 'Closed'}
                                                 </span>
                                             </td>
@@ -235,7 +235,7 @@ export default function AdminDashboard() {
                                                     </button>
                                                     <Link
                                                         href={`/admin/tests/${test._id}`}
-                                                        className="text-xs text-gray-400 hover:text-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-700/50 transition-smooth"
+                                                        className="text-xs text-slate-600 hover:text-slate-800 px-3 py-1.5 rounded-lg hover:bg-slate-200/50 transition-smooth"
                                                     >
                                                         View Details →
                                                     </Link>

@@ -50,12 +50,12 @@ export default function AdminLogin() {
                 {/* Logo */}
                 <div className="text-center mb-8">
                     <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 mb-4">
-                        <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-7 w-7 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                         </svg>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-100">Admin Login</h1>
-                    <p className="text-gray-400 text-sm mt-1">Kadel Labs Code Editor</p>
+                    <h1 className="text-2xl font-bold text-slate-900">Admin Login</h1>
+                    <p className="text-slate-600 text-sm mt-1">Kadel Labs Code Editor</p>
                 </div>
 
                 {/* Form */}
@@ -67,7 +67,7 @@ export default function AdminLogin() {
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
                         <input
                             type="email"
                             value={email}
@@ -79,7 +79,7 @@ export default function AdminLogin() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
                         <input
                             type="password"
                             value={password}

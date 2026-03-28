@@ -119,7 +119,7 @@ export default function TestDetailPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-950">
+            <div className="min-h-screen bg-slate-50">
                 <Navbar isAdmin />
                 <div className="mx-auto max-w-7xl px-4 py-8 space-y-4">
                     <div className="skeleton h-12 w-64" />
@@ -134,10 +134,10 @@ export default function TestDetailPage() {
 
     if (!test) {
         return (
-            <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
                 <div className="text-center">
                     <div className="text-4xl mb-4">❌</div>
-                    <h2 className="text-xl font-bold text-gray-200 mb-2">Test not found</h2>
+                    <h2 className="text-xl font-bold text-slate-800 mb-2">Test not found</h2>
                     <Link href="/admin/dashboard" className="btn-primary text-sm">Back to Dashboard</Link>
                 </div>
             </div>
@@ -152,18 +152,18 @@ export default function TestDetailPage() {
         : [];
 
     return (
-        <div className="min-h-screen bg-gray-950">
+        <div className="min-h-screen bg-slate-50">
             <Navbar isAdmin />
 
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
                     <div>
-                        <Link href="/admin/dashboard" className="text-sm text-gray-500 hover:text-gray-300 mb-2 inline-block">
+                        <Link href="/admin/dashboard" className="text-sm text-slate-500 hover:text-slate-700 mb-2 inline-block">
                             ← Back to Dashboard
                         </Link>
-                        <h1 className="text-2xl font-bold text-gray-100">{test.title}</h1>
-                        <div className="flex items-center gap-4 mt-1 text-sm text-gray-400">
+                        <h1 className="text-2xl font-bold text-slate-900">{test.title}</h1>
+                        <div className="flex items-center gap-4 mt-1 text-sm text-slate-600">
                             <span>🕐 {test.duration} min</span>
                             <span>📝 {test.problems.length} problems</span>
                         </div>
@@ -178,56 +178,56 @@ export default function TestDetailPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
                         <div className="glass-card p-4 text-center">
                             <div className="text-2xl font-bold text-indigo-400">{analytics.totalCandidates}</div>
-                            <div className="text-xs text-gray-500 mt-1">Total Candidates</div>
+                            <div className="text-xs text-slate-500 mt-1">Total Candidates</div>
                         </div>
                         <div className="glass-card p-4 text-center">
                             <div className="text-2xl font-bold text-emerald-400">{analytics.completedCandidates}</div>
-                            <div className="text-xs text-gray-500 mt-1">Completed</div>
+                            <div className="text-xs text-slate-500 mt-1">Completed</div>
                         </div>
                         <div className="glass-card p-4 text-center">
                             <div className="text-2xl font-bold text-amber-400">{analytics.completionRate}%</div>
-                            <div className="text-xs text-gray-500 mt-1">Completion Rate</div>
+                            <div className="text-xs text-slate-500 mt-1">Completion Rate</div>
                         </div>
                         <div className="glass-card p-4 text-center">
                             <div className="text-2xl font-bold text-rose-400">{analytics.averageScore}%</div>
-                            <div className="text-xs text-gray-500 mt-1">Avg Score</div>
+                            <div className="text-xs text-slate-500 mt-1">Avg Score</div>
                         </div>
                     </div>
                 )}
 
                 {/* Candidates Table */}
-                <h2 className="text-lg font-semibold text-gray-200 mb-4">Candidates</h2>
+                <h2 className="text-lg font-semibold text-slate-800 mb-4">Candidates</h2>
                 {candidates.length === 0 ? (
                     <div className="glass-card p-8 text-center">
-                        <p className="text-gray-500">No candidates have taken this test yet.</p>
+                        <p className="text-slate-500">No candidates have taken this test yet.</p>
                     </div>
                 ) : (
                     <div className="glass-card overflow-hidden mb-8">
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="border-b border-gray-700/50">
-                                        <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase">Name</th>
-                                        <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase">Email</th>
-                                        <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase">College</th>
-                                        <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase">Score</th>
-                                        <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase">Tab Switches</th>
-                                        <th className="text-left px-5 py-3 text-xs font-semibold text-gray-400 uppercase">Status</th>
-                                        <th className="text-right px-5 py-3 text-xs font-semibold text-gray-400 uppercase">Actions</th>
+                                    <tr className="border-b border-slate-300/50">
+                                        <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Name</th>
+                                        <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Email</th>
+                                        <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">College</th>
+                                        <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Score</th>
+                                        <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Tab Switches</th>
+                                        <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Status</th>
+                                        <th className="text-right px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-800/50">
                                     {candidates.map((c) => (
-                                        <tr key={c._id} className={`hover:bg-gray-800/30 transition-smooth ${selectedCandidate === c._id ? 'bg-indigo-500/5' : ''}`}>
-                                            <td className="px-5 py-3 text-sm font-medium text-gray-200">{c.fullName}</td>
-                                            <td className="px-5 py-3 text-sm text-gray-400">{c.email}</td>
-                                            <td className="px-5 py-3 text-sm text-gray-400">{c.college}</td>
+                                        <tr key={c._id} className={`hover:bg-slate-100/30 transition-smooth ${selectedCandidate === c._id ? 'bg-indigo-500/5' : ''}`}>
+                                            <td className="px-5 py-3 text-sm font-medium text-slate-800">{c.fullName}</td>
+                                            <td className="px-5 py-3 text-sm text-slate-600">{c.email}</td>
+                                            <td className="px-5 py-3 text-sm text-slate-600">{c.college}</td>
                                             <td className="px-5 py-3 text-sm">
                                                 <span className="text-emerald-400 font-medium">{c.score}</span>
-                                                <span className="text-gray-600">/{c.totalScore}</span>
+                                                <span className="text-slate-400">/{c.totalScore}</span>
                                             </td>
                                             <td className="px-5 py-3 text-sm">
-                                                <span className={c.tabSwitchCount > 3 ? 'text-red-400 font-medium' : 'text-gray-400'}>
+                                                <span className={c.tabSwitchCount > 3 ? 'text-red-400 font-medium' : 'text-slate-600'}>
                                                     {c.tabSwitchCount}
                                                 </span>
                                             </td>
@@ -235,7 +235,7 @@ export default function TestDetailPage() {
                                                 <span className={`text-xs font-medium px-2 py-1 rounded-full ${c.status === 'completed' ? 'bg-emerald-500/15 text-emerald-400' :
                                                         c.status === 'in-progress' ? 'bg-amber-500/15 text-amber-400' :
                                                             c.status === 'timed-out' ? 'bg-red-500/15 text-red-400' :
-                                                                'bg-gray-500/15 text-gray-400'
+                                                                'bg-slate-500/15 text-slate-600'
                                                     }`}>
                                                     {c.status}
                                                 </span>
@@ -266,21 +266,21 @@ export default function TestDetailPage() {
                 {/* Selected candidate submissions */}
                 {selectedCandidate && candidateSubmissions.length > 0 && (
                     <div className="space-y-4 mb-8">
-                        <h3 className="text-md font-semibold text-gray-300">
+                        <h3 className="text-md font-semibold text-slate-700">
                             Submissions by {candidates.find(c => c._id === selectedCandidate)?.fullName}
                         </h3>
                         {candidateSubmissions.map((sub) => (
                             <div key={sub._id} className="glass-card p-5">
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-3">
-                                        <span className="text-sm font-medium text-gray-200">
+                                        <span className="text-sm font-medium text-slate-800">
                                             {typeof sub.problemId === 'object' ? sub.problemId.title : 'Problem'}
                                         </span>
-                                        <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{sub.language}</span>
+                                        <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{sub.language}</span>
                                     </div>
                                     <div className="flex items-center gap-4 text-sm">
                                         <span className="text-emerald-400">{sub.testCasesPassed}/{sub.totalTestCases} passed</span>
-                                        <span className="text-gray-500">{formatTime(sub.timeTaken)}</span>
+                                        <span className="text-slate-500">{formatTime(sub.timeTaken)}</span>
                                         <button
                                             onClick={() => setViewingCode(viewingCode?._id === sub._id ? null : sub)}
                                             className="text-xs text-indigo-400 hover:text-indigo-300"
@@ -290,7 +290,7 @@ export default function TestDetailPage() {
                                     </div>
                                 </div>
                                 {viewingCode?._id === sub._id && (
-                                    <pre className="bg-gray-900 rounded-lg p-4 text-sm text-gray-300 font-mono overflow-x-auto max-h-80 overflow-y-auto border border-gray-700/50">
+                                    <pre className="bg-white rounded-lg p-4 text-sm text-slate-700 font-mono overflow-x-auto max-h-80 overflow-y-auto border border-slate-300/50">
                                         {sub.code}
                                     </pre>
                                 )}

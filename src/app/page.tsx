@@ -2,14 +2,14 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-slate-50">
       {/* Navbar */}
-      <nav className="border-b border-gray-800/50 bg-gray-950/80 backdrop-blur-xl">
+      <nav className="border-b border-slate-200/50 bg-slate-50/80 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600">
-                <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                 </svg>
               </div>
@@ -37,12 +37,12 @@ export default function Home() {
             </div>
 
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight">
-              <span className="text-gray-100">Evaluate Talent with</span>
+              <span className="text-slate-900">Evaluate Talent with</span>
               <br />
               <span className="gradient-text">Precision & Confidence</span>
             </h1>
 
-            <p className="mt-6 text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            <p className="mt-6 text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
               Create coding assessments, share unique test links, and evaluate candidates
               with real-time code execution and automated scoring.
             </p>
@@ -60,11 +60,11 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section id="features" className="py-24 border-t border-gray-800/50">
+      <section id="features" className="py-24 border-t border-slate-200/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-100">Everything You Need</h2>
-            <p className="mt-4 text-gray-400 text-lg">Powerful features for seamless coding assessments</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">Everything You Need</h2>
+            <p className="mt-4 text-slate-600 text-lg">Powerful features for seamless coding assessments</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -105,10 +105,10 @@ export default function Home() {
                 className="glass-card p-6 hover:scale-[1.02] transition-smooth group"
               >
                 <div className="text-3xl mb-4">{feature.icon}</div>
-                <h3 className="text-lg font-semibold text-gray-100 mb-2 group-hover:text-indigo-300 transition-smooth">
+                <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-indigo-300 transition-smooth">
                   {feature.title}
                 </h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{feature.desc}</p>
+                <p className="text-sm text-slate-600 leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -116,9 +116,9 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800/50 py-8">
+      <footer className="border-t border-slate-200/50 py-8">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-500">
             © 2026 Kadel Labs. Built for excellence in coding assessment.
           </p>
         </div>

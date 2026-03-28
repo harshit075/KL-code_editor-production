@@ -110,21 +110,21 @@ export default function CreateTest() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-950">
+        <div className="min-h-screen bg-slate-50">
             <Navbar isAdmin />
 
             <div className="mx-auto max-w-2xl px-4 py-8">
-                <h1 className="text-2xl font-bold text-gray-100 mb-2">Create New Test</h1>
-                <p className="text-gray-400 text-sm mb-8">Configure your coding assessment</p>
+                <h1 className="text-2xl font-bold text-slate-900 mb-2">Create New Test</h1>
+                <p className="text-slate-600 text-sm mb-8">Configure your coding assessment</p>
 
                 {result ? (
                     /* Success state */
                     <div className="glass-card p-8 text-center">
                         <div className="text-5xl mb-4">🎉</div>
-                        <h2 className="text-xl font-bold text-gray-100 mb-2">Test Created!</h2>
-                        <p className="text-gray-400 text-sm mb-6">Share this link with your candidates</p>
+                        <h2 className="text-xl font-bold text-slate-900 mb-2">Test Created!</h2>
+                        <p className="text-slate-600 text-sm mb-6">Share this link with your candidates</p>
 
-                        <div className="flex items-center gap-2 bg-gray-800/80 rounded-xl p-4 mb-6">
+                        <div className="flex items-center gap-2 bg-slate-100/80 rounded-xl p-4 mb-6">
                             <input
                                 type="text"
                                 value={result.link}
@@ -161,7 +161,7 @@ export default function CreateTest() {
                         )}
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Test Title</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Test Title</label>
                             <input
                                 type="text"
                                 value={title}
@@ -172,17 +172,17 @@ export default function CreateTest() {
                             />
                         </div>
 
-                        <div className="flex bg-gray-900/50 p-1 rounded-xl">
+                        <div className="flex bg-white/50 p-1 rounded-xl">
                             <button
                                 type="button"
-                                className={`flex-1 py-2 lg:text-sm text-xs font-medium rounded-lg transition-all ${mode === 'auto' ? 'bg-gray-800 text-white shadow' : 'text-gray-400 hover:text-gray-200'}`}
+                                className={`flex-1 py-2 lg:text-sm text-xs font-medium rounded-lg transition-all ${mode === 'auto' ? 'bg-slate-100 text-slate-900 shadow' : 'text-slate-600 hover:text-slate-800'}`}
                                 onClick={() => setMode('auto')}
                             >
                                 Auto Generate (Random)
                             </button>
                             <button
                                 type="button"
-                                className={`flex-1 py-2 lg:text-sm text-xs font-medium rounded-lg transition-all ${mode === 'manual' ? 'bg-gray-800 text-white shadow' : 'text-gray-400 hover:text-gray-200'}`}
+                                className={`flex-1 py-2 lg:text-sm text-xs font-medium rounded-lg transition-all ${mode === 'manual' ? 'bg-slate-100 text-slate-900 shadow' : 'text-slate-600 hover:text-slate-800'}`}
                                 onClick={() => setMode('manual')}
                             >
                                 Manual Selection
@@ -192,7 +192,7 @@ export default function CreateTest() {
                         {mode === 'auto' ? (
                             <>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-3">Difficulty Levels</label>
+                                    <label className="block text-sm font-medium text-slate-700 mb-3">Difficulty Levels</label>
                                     <div className="flex flex-wrap gap-3">
                                         {(['easy', 'medium', 'hard'] as const).map((diff) => {
                                             const isActive = difficulties.includes(diff);
@@ -208,7 +208,7 @@ export default function CreateTest() {
                                                     onClick={() => toggleDifficulty(diff)}
                                                     className={`flex-1 sm:flex-none px-5 py-2.5 rounded-xl border text-sm font-medium transition-all ${isActive
                                                             ? colors[diff]
-                                                            : 'bg-gray-800/50 border-gray-700 text-gray-500 hover:border-gray-600'
+                                                            : 'bg-slate-100/50 border-slate-300 text-slate-500 hover:border-slate-400'
                                                         }`}
                                                 >
                                                     {diff.charAt(0).toUpperCase() + diff.slice(1)}
@@ -219,7 +219,7 @@ export default function CreateTest() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">Number of Problems</label>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Number of Problems</label>
                                     <input
                                         type="number"
                                         value={problemCount}
@@ -232,11 +232,11 @@ export default function CreateTest() {
                             </>
                         ) : (
                             <div className="space-y-3">
-                                <label className="block text-sm font-medium text-gray-300">Select Problems</label>
+                                <label className="block text-sm font-medium text-slate-700">Select Problems</label>
                                 {fetchingProblems ? (
-                                    <div className="text-sm text-gray-400 py-4 text-center">Loading problems...</div>
+                                    <div className="text-sm text-slate-600 py-4 text-center">Loading problems...</div>
                                 ) : (
-                                    <div className="max-h-64 overflow-y-auto space-y-2 pr-2 custom-scrollbar border border-gray-800 rounded-xl p-2 bg-gray-900/30">
+                                    <div className="max-h-64 overflow-y-auto space-y-2 pr-2 custom-scrollbar border border-slate-200 rounded-xl p-2 bg-white/30">
                                         {availableProblems.map((p) => {
                                             const isSelected = selectedProblems.includes(p._id);
                                             return (
@@ -248,11 +248,11 @@ export default function CreateTest() {
                                                         );
                                                     }}
                                                     className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${
-                                                        isSelected ? 'bg-indigo-500/10 border-indigo-500/40' : 'bg-gray-800/40 border-gray-800 hover:border-gray-700'
+                                                        isSelected ? 'bg-indigo-500/10 border-indigo-500/40' : 'bg-slate-100/40 border-slate-200 hover:border-slate-300'
                                                     }`}
                                                 >
                                                     <div>
-                                                        <div className="font-medium text-gray-200 text-sm flex items-center gap-2">
+                                                        <div className="font-medium text-slate-800 text-sm flex items-center gap-2">
                                                             {p.title}
                                                             <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
                                                                 p.difficulty === 'easy' ? 'border-emerald-500/30 text-emerald-400' :
@@ -262,29 +262,29 @@ export default function CreateTest() {
                                                                 {p.difficulty}
                                                             </span>
                                                         </div>
-                                                        <div className="text-xs text-gray-500 mt-1 flex gap-1">
+                                                        <div className="text-xs text-slate-500 mt-1 flex gap-1">
                                                             {p.tags?.slice(0, 3).map((t: string) => (
                                                                 <span key={t}>#{t}</span>
                                                             ))}
                                                         </div>
                                                     </div>
                                                     <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
-                                                        isSelected ? 'bg-indigo-500 border-indigo-500' : 'border-gray-600 bg-gray-800'
+                                                        isSelected ? 'bg-indigo-500 border-indigo-500' : 'border-slate-400 bg-slate-100'
                                                     }`}>
-                                                        {isSelected && <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>}
+                                                        {isSelected && <svg className="w-3.5 h-3.5 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>}
                                                     </div>
                                                 </div>
                                             );
                                         })}
-                                        {availableProblems.length === 0 && <div className="text-sm text-gray-500 text-center p-4">No problems found.</div>}
+                                        {availableProblems.length === 0 && <div className="text-sm text-slate-500 text-center p-4">No problems found.</div>}
                                     </div>
                                 )}
-                                <div className="text-xs text-gray-400 text-right">{selectedProblems.length} problem(s) selected</div>
+                                <div className="text-xs text-slate-600 text-right">{selectedProblems.length} problem(s) selected</div>
                             </div>
                         )}
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Duration (minutes)</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Duration (minutes)</label>
                             <input
                                 type="number"
                                 value={duration}

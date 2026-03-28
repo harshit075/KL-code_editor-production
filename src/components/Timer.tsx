@@ -51,7 +51,7 @@ export default function Timer({ remainingMs, onTimeUp }: TimerProps) {
                     ? 'bg-red-500/20 text-red-400 timer-critical'
                     : isLow
                         ? 'bg-amber-500/15 text-amber-400'
-                        : 'bg-gray-800/60 text-gray-300'
+                        : 'bg-slate-100/60 text-slate-700'
                 }`}
         >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

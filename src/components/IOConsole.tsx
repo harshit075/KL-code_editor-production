@@ -20,16 +20,16 @@ export default function IOConsole({ input, output, stderr, isRunning, onInputCha
     }, [isRunning]);
 
     return (
-        <div className="flex flex-col h-full bg-gray-900/60">
+        <div className="flex flex-col h-full bg-white/60">
             {/* Tabs */}
-            <div className="flex border-b border-gray-700/50">
+            <div className="flex border-b border-slate-300/50">
                 {(['input', 'output'] as const).map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`px-4 py-2.5 text-sm font-medium transition-all border-b-2 ${activeTab === tab
                                 ? 'text-indigo-400 border-indigo-400 bg-indigo-500/5'
-                                : 'text-gray-500 border-transparent hover:text-gray-300'
+                                : 'text-slate-500 border-transparent hover:text-slate-700'
                             }`}
                     >
                         {tab === 'input' ? '📥 Input' : '📤 Output'}
@@ -54,7 +54,7 @@ export default function IOConsole({ input, output, stderr, isRunning, onInputCha
                         value={input}
                         onChange={(e) => onInputChange(e.target.value)}
                         placeholder="Enter your input here..."
-                        className="w-full h-full bg-transparent text-sm text-gray-200 font-mono resize-none outline-none placeholder:text-gray-600"
+                        className="w-full h-full bg-transparent text-sm text-slate-800 font-mono resize-none outline-none placeholder:text-slate-400"
                     />
                 ) : (
                     <div className="h-full overflow-auto">
@@ -63,7 +63,7 @@ export default function IOConsole({ input, output, stderr, isRunning, onInputCha
                         ) : output ? (
                             <pre className="text-sm text-green-400 font-mono whitespace-pre-wrap">{output}</pre>
                         ) : (
-                            <p className="text-sm text-gray-600 italic">Run your code to see output here...</p>
+                            <p className="text-sm text-slate-400 italic">Run your code to see output here...</p>
                         )}
                     </div>
                 )}

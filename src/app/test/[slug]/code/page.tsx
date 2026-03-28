@@ -244,10 +244,10 @@ export default function CodingEnvironment() {
 
   if (loading) {
     return (
-      <div className="h-screen bg-gray-950 flex items-center justify-center">
+      <div className="h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-3 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading your test...</p>
+          <p className="text-slate-600">Loading your test...</p>
         </div>
       </div>
     );
@@ -255,14 +255,14 @@ export default function CodingEnvironment() {
 
   if (submitted) {
     return (
-      <div className="h-screen bg-gray-950 flex items-center justify-center px-4">
+      <div className="h-screen bg-slate-50 flex items-center justify-center px-4">
         <div className="glass-card p-12 text-center max-w-md">
           <div className="text-6xl mb-6">✅</div>
-          <h1 className="text-2xl font-bold text-gray-100 mb-3">Test Submitted!</h1>
-          <p className="text-gray-400 mb-6">
+          <h1 className="text-2xl font-bold text-slate-900 mb-3">Test Submitted!</h1>
+          <p className="text-slate-600 mb-6">
             Your responses have been recorded. You will receive your results soon.
           </p>
-          <div className="bg-gray-800/50 rounded-xl p-4 text-sm text-gray-400">
+          <div className="bg-slate-100/50 rounded-xl p-4 text-sm text-slate-600">
             Thank you for completing the assessment. You may close this tab now.
           </div>
         </div>
@@ -272,31 +272,31 @@ export default function CodingEnvironment() {
 
   if (!currentProblem || problems.length === 0) {
     return (
-      <div className="h-screen bg-gray-950 flex items-center justify-center">
+      <div className="h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl mb-4">⚠️</div>
-          <p className="text-gray-400">No problems found for this test.</p>
+          <p className="text-slate-600">No problems found for this test.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen bg-gray-950 flex flex-col overflow-hidden">
+    <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
       <AntiCheat candidateId={candidateId} onViolation={handleTabViolation} />
 
       {/* Tab switch warning */}
       {tabWarning && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-500/90 text-white px-6 py-3 rounded-xl shadow-2xl animate-bounce">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-500/90 text-slate-900 px-6 py-3 rounded-xl shadow-2xl animate-bounce">
           ⚠️ Tab switch detected! This is being recorded.
         </div>
       )}
 
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-900/90 border-b border-gray-800/50 backdrop-blur-sm shrink-0">
+      <div className="flex items-center justify-between px-4 py-2 bg-white/90 border-b border-slate-200/50 backdrop-blur-sm shrink-0">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600">
-            <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-4 w-4 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
             </svg>
           </div>
@@ -317,7 +317,7 @@ export default function CodingEnvironment() {
       {/* Main content */}
       <div className="flex-1 flex min-h-0">
         {/* Left: Problem panel */}
-        <div className="w-[400px] min-w-[320px] border-r border-gray-800/50 flex flex-col overflow-hidden">
+        <div className="w-[400px] min-w-[320px] border-r border-slate-200/50 flex flex-col overflow-hidden">
           <ProblemPanel
             problem={currentProblem}
             currentIndex={currentProblemIndex}
@@ -339,7 +339,7 @@ export default function CodingEnvironment() {
           </div>
 
           {/* Action bar */}
-          <div className="flex items-center justify-between px-4 py-2 bg-gray-900/80 border-t border-b border-gray-700/50 shrink-0">
+          <div className="flex items-center justify-between px-4 py-2 bg-white/80 border-t border-b border-slate-300/50 shrink-0">
             <div className="flex items-center gap-2">
               <button
                 onClick={handleRun}
@@ -370,16 +370,16 @@ export default function CodingEnvironment() {
                 )}
               </button>
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-slate-500">
               Problem {currentProblemIndex + 1} of {problems.length}
             </div>
           </div>
 
           {/* Test results */}
           {testResults && (
-            <div className="px-4 py-3 bg-gray-900/60 border-b border-gray-700/50 shrink-0">
+            <div className="px-4 py-3 bg-white/60 border-b border-slate-300/50 shrink-0">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm font-medium text-gray-300">Test Cases:</span>
+                <span className="text-sm font-medium text-slate-700">Test Cases:</span>
                 <span className="text-sm text-emerald-400">
                   {testResults.filter(r => r.passed).length}/{testResults.length} passed
                 </span>
@@ -396,7 +396,7 @@ export default function CodingEnvironment() {
                   >
                     {r.isHidden ? `Hidden #${r.testCase}` : `Case #${r.testCase}`}: {r.passed ? '✓ Pass' : '✗ Fail'}
                     {!r.isHidden && !r.passed && r.expected && (
-                      <span className="ml-2 text-gray-500">
+                      <span className="ml-2 text-slate-500">
                         (expected: {r.expected.substring(0, 30)})
                       </span>
                     )}

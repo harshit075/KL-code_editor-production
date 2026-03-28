@@ -1,0 +1,27 @@
+<svg xmlns="http://www.svg.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Dynamic Gradient Background -->
+  <defs>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" /> <!-- Indigo -->
+      <stop offset="100%" stop-color="#9333ea" /> <!-- Purple -->
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Base Rounded Rectangle -->
+  <rect width="512" height="512" rx="120" ry="120" fill="url(#glow)" filter="url(#shadow)" />
+
+  <!-- The Code Brackets: < /> -->
+  <path
+    d="M 180 150 L 80 256 L 180 362 
+       M 332 150 L 432 256 L 332 362 
+       M 285 110 L 225 402"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="48"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

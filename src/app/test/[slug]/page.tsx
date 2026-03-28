@@ -67,12 +67,12 @@ export default function TestRegistration() {
                 {/* Header */}
                 <div className="text-center mb-8">
                     <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 mb-4">
-                        <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-7 w-7 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                         </svg>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-100">Coding Assessment</h1>
-                    <p className="text-gray-400 text-sm mt-1">Enter your details to begin the test</p>
+                    <h1 className="text-2xl font-bold text-slate-900">Coding Assessment</h1>
+                    <p className="text-slate-600 text-sm mt-1">Enter your details to begin the test</p>
                 </div>
 
                 {/* Form */}
@@ -84,7 +84,7 @@ export default function TestRegistration() {
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
                         <input
                             type="text"
                             value={fullName}
@@ -96,7 +96,7 @@ export default function TestRegistration() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
                         <input
                             type="email"
                             value={email}
@@ -108,7 +108,7 @@ export default function TestRegistration() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">College / Organization</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">College / Organization</label>
                         <input
                             type="text"
                             value={college}
@@ -120,7 +120,7 @@ export default function TestRegistration() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Mobile Number</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Mobile Number</label>
                         <input
                             type="tel"
                             value={mobile}

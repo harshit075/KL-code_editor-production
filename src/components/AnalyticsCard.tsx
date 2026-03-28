@@ -43,10 +43,10 @@ export default function AnalyticsCard({ title, value, subtitle, icon, color, hre
         <div className={`glass-card p-5 ${colors.bg} border ${colors.border} transition-smooth hover:scale-[1.02] cursor-pointer`}>
             <div className="flex items-start justify-between">
                 <div>
-                    <p className="text-sm text-gray-400 font-medium">{title}</p>
+                    <p className="text-sm text-slate-600 font-medium">{title}</p>
                     <p className={`text-3xl font-bold mt-2 ${colors.value}`}>{value}</p>
                     {subtitle && (
-                        <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
+                        <p className="text-xs text-slate-500 mt-1">{subtitle}</p>
                     )}
                 </div>
                 <div className={`p-3 rounded-xl ${colors.bg} ${colors.icon}`}>

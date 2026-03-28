@@ -6,12 +6,12 @@
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
-  --bg-primary: #030712;
-  --bg-secondary: #111827;
-  --bg-card: #1f2937;
-  --border: #374151;
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
+  --bg-primary: #fafafa;
+  --bg-secondary: #f4f4f5;
+  --bg-card: #ffffff;
+  --border: #e4e4e7;
+  --text-primary: #09090b;
+  --text-secondary: #52525b;
 }
 
 /* Custom scrollbar */
@@ -35,15 +35,17 @@
 
 /* Glassmorphism card */
 .glass-card {
-  background: rgba(31, 41, 55, 0.6);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(75, 85, 99, 0.3);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
 }
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -79,20 +81,22 @@
 
 /* Button styles */
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1, #7c3aed);
-  color: white;
+  background: #09090b;
+  color: #ffffff;
   padding: 0.625rem 1.5rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  transition: all 0.2s;
-  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
   cursor: pointer;
+  box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #818cf8, #8b5cf6);
+  background: #27272a;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 
 .btn-primary:disabled {
@@ -102,45 +106,57 @@
 }
 
 .btn-secondary {
-  background: var(--bg-card);
-  color: var(--text-primary);
+  background: #ffffff;
+  color: #09090b;
   padding: 0.625rem 1.5rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   font-weight: 500;
-  transition: all 0.2s;
-  border: 1px solid var(--border);
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid #e4e4e7;
   cursor: pointer;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
 }
 
 .btn-secondary:hover {
-  background: var(--border);
+  background: var(--bg-secondary);
+  border-color: #cbd5e1;
 }
 
 .btn-success {
-  background: linear-gradient(135deg, #059669, #10b981);
-  color: white;
+  background: #10b981;
+  color: #ffffff;
   padding: 0.625rem 1.5rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  transition: all 0.2s;
-  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
   cursor: pointer;
 }
 
 .btn-success:hover {
-  background: linear-gradient(135deg, #10b981, #34d399);
+  background: #059669;
   transform: translateY(-1px);
+  box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.2);
 }
 
 .btn-danger {
-  background: linear-gradient(135deg, #dc2626, #ef4444);
+  background: #ef4444;
   color: white;
   padding: 0.625rem 1.5rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  transition: all 0.2s;
-  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
   cursor: pointer;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.2);
 }
 
 /* Input styles */
@@ -167,8 +183,9 @@
 
 /* Difficulty badges */
 .badge-easy {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #d1fae5;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
@@ -176,8 +193,9 @@
 }
 
 .badge-medium {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fef3c7;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
@@ -185,8 +203,9 @@
 }
 
 .badge-hard {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fee2e2;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
