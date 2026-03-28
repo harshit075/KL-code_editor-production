@@ -1,9 +1,12 @@
+import Link from 'next/link';
+
 interface AnalyticsCardProps {
     title: string;
     value: string | number;
     subtitle?: string;
     icon: React.ReactNode;
     color: 'indigo' | 'emerald' | 'amber' | 'rose';
+    href?: string;
 }
 
 const colorMap = {
@@ -33,11 +36,11 @@ const colorMap = {
     },
 };
 
-export default function AnalyticsCard({ title, value, subtitle, icon, color }: AnalyticsCardProps) {
+export default function AnalyticsCard({ title, value, subtitle, icon, color, href }: AnalyticsCardProps) {
     const colors = colorMap[color];
 
-    return (
-        <div className={`glass-card p-5 ${colors.bg} border ${colors.border} transition-smooth hover:scale-[1.02]`}>
+    const CardContent = (
+        <div className={`glass-card p-5 ${colors.bg} border ${colors.border} transition-smooth hover:scale-[1.02] cursor-pointer`}>
             <div className="flex items-start justify-between">
                 <div>
                     <p className="text-sm text-gray-400 font-medium">{title}</p>
@@ -52,4 +55,10 @@ export default function AnalyticsCard({ title, value, subtitle, icon, color }: A
             </div>
         </div>
     );
+
+    if (href) {
+        return <Link href={href} className="block w-full">{CardContent}</Link>;
+    }
+
+    return CardContent;
 }
