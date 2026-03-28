@@ -51,6 +51,29 @@ export default function AllCandidatesPage() {
         setExpandedCandidate(expandedCandidate === id ? null : id);
     };
 
+    const handleDeleteCandidate = async (candidateId: string) => {
+        if (!window.confirm('Are you sure you want to delete this candidate? This will permanently delete their account and all their code submissions.')) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('adminToken');
+            const res = await fetch(`/api/admin/candidates/${candidateId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                setCandidates(prev => prev.filter(c => c._id !== candidateId));
+            } else {
+                alert('Failed to delete candidate');
+            }
+        } catch (err) {
+            console.error('Delete error', err);
+            alert('An error occurred trying to delete the candidate');
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-950">
@@ -102,12 +125,19 @@ export default function AllCandidatesPage() {
                                             <span className="text-emerald-400 font-bold">{c.score}</span>
                                             <span className="text-gray-500"> / {c.totalScore || 0}</span>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
                                             <button 
                                                 onClick={() => toggleExpand(c._id)}
                                                 className={`text-xs px-3 py-1.5 rounded-lg transition-smooth ${expandedCandidate === c._id ? 'bg-indigo-500/20 text-indigo-300' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
                                             >
                                                 {expandedCandidate === c._id ? 'Hide Code ▲' : 'View Code ▼'}
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteCandidate(c._id)}
+                                                className="text-xs text-red-500 hover:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-500/10 transition-smooth"
+                                                title="Delete Candidate"
+                                            >
+                                                🗑️ Delete
                                             </button>
                                         </td>
                                     </tr>

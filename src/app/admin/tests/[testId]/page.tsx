@@ -93,6 +93,30 @@ export default function TestDetailPage() {
         }
     };
 
+    const handleDeleteCandidate = async (candidateId: string) => {
+        if (!window.confirm('Are you sure you want to delete this candidate? This will permanently delete their account and all their code submissions.')) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('adminToken');
+            const res = await fetch(`/api/admin/candidates/${candidateId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                setCandidates(prev => prev.filter(c => c._id !== candidateId));
+                setAnalytics(prev => prev ? { ...prev, totalCandidates: prev.totalCandidates - 1 } : null);
+            } else {
+                alert('Failed to delete candidate');
+            }
+        } catch (err) {
+            console.error('Delete error', err);
+            alert('An error occurred trying to delete the candidate');
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-950">
@@ -216,12 +240,19 @@ export default function TestDetailPage() {
                                                     {c.status}
                                                 </span>
                                             </td>
-                                            <td className="px-5 py-3 text-right">
+                                            <td className="px-5 py-3 text-right flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={() => setSelectedCandidate(selectedCandidate === c._id ? null : c._id)}
                                                     className="text-xs text-indigo-400 hover:text-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-500/10"
                                                 >
                                                     {selectedCandidate === c._id ? 'Hide' : 'View Code'}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteCandidate(c._id)}
+                                                    className="text-xs text-red-500 hover:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-500/10 transition-smooth"
+                                                    title="Delete Candidate"
+                                                >
+                                                    🗑️
                                                 </button>
                                             </td>
                                         </tr>
