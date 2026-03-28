@@ -14,6 +14,7 @@ interface CodeEditorProps {
 
 const LANGUAGE_OPTIONS = [
     { value: 'javascript', label: 'JavaScript', monacoLang: 'javascript' },
+    { value: 'python', label: 'Python', monacoLang: 'python' },
     { value: 'c', label: 'C', monacoLang: 'c' },
     { value: 'cpp', label: 'C++', monacoLang: 'cpp' },
     { value: 'java', label: 'Java', monacoLang: 'java' },

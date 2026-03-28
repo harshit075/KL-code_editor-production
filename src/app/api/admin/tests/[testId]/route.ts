@@ -67,3 +67,33 @@ export async function GET(
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
+
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<{ testId: string }> }
+) {
+    try {
+        const admin = authenticateAdmin(request);
+        if (!admin) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        await dbConnect();
+        const { testId } = await params;
+
+        const test = await Test.findById(testId);
+        if (!test) {
+            return NextResponse.json({ error: 'Test not found' }, { status: 404 });
+        }
+
+        await Candidate.deleteMany({ testId: test._id });
+        await Submission.deleteMany({ testId: test._id });
+        
+        await Test.findByIdAndDelete(testId);
+
+        return NextResponse.json({ success: true, message: 'Test deleted successfully' });
+    } catch (error: unknown) {
+        console.error('Delete test error:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}

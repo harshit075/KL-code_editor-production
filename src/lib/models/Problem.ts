@@ -11,6 +11,7 @@ export interface IStarterCode {
     cpp: string;
     java: string;
     javascript: string;
+    python: string;
 }
 
 export interface IProblem extends Document {
@@ -51,6 +52,7 @@ const ProblemSchema = new Schema<IProblem>({
         cpp: { type: String, default: '' },
         java: { type: String, default: '' },
         javascript: { type: String, default: '' },
+        python: { type: String, default: '' },
     },
     tags: [{ type: String }],
     createdAt: { type: Date, default: Date.now },

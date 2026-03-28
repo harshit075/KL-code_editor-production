@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
             cpp: 54,
             java: 62,
             javascript: 93,
+            python: 71,
         };
 
         const langId = langMap[language];

@@ -89,6 +89,7 @@ export default function CodingEnvironment() {
         data.test.problems.forEach((p: Problem) => {
           initialCodes[p._id] = {
             javascript: p.starterCode?.javascript || '// Write your solution here\n',
+            python: p.starterCode?.python || '# Write your solution here\nimport sys\n\ndef main():\n    pass\n\nif __name__ == "__main__":\n    main()\n',
             c: p.starterCode?.c || '#include <stdio.h>\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n',
             cpp: p.starterCode?.cpp || '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n',
             java: p.starterCode?.java || 'import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Write your solution here\n    }\n}\n',

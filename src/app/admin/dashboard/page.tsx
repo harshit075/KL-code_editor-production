@@ -80,6 +80,30 @@ export default function AdminDashboard() {
         navigator.clipboard.writeText(link);
     };
 
+    const handleDeleteTest = async (testId: string) => {
+        if (!window.confirm('Are you sure you want to delete this test? All candidate attempts and submissions will also be deleted. This cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('adminToken');
+            const res = await fetch(`/api/admin/tests/${testId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (res.ok) {
+                setTests(tests.filter(t => t._id !== testId));
+                setAnalytics(prev => prev ? { ...prev, totalTests: prev.totalTests - 1 } : null);
+            } else {
+                alert('Failed to delete test.');
+            }
+        } catch (err) {
+            console.error('Delete error:', err);
+            alert('An error occurred while deleting the test.');
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-950">
@@ -214,6 +238,13 @@ export default function AdminDashboard() {
                                                     >
                                                         View Details →
                                                     </Link>
+                                                    <button
+                                                        onClick={() => handleDeleteTest(test._id)}
+                                                        className="text-xs text-red-500 hover:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-500/10 transition-smooth ml-1"
+                                                        title="Delete test"
+                                                    >
+                                                        🗑️ Delete
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
