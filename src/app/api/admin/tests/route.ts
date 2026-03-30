@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
         }
 
         await dbConnect();
-        const { title, duration, difficulties, problemCount, mode, problemIds } = await request.json();
+        const { title, duration, difficulties, problemCount, mode, problemIds, customProblem } = await request.json();
 
         if (!title || !duration) {
             return NextResponse.json(
@@ -61,7 +61,28 @@ export async function POST(request: NextRequest) {
 
         let problems: { _id: string }[] = [];
 
-        if (mode === 'manual') {
+        if (mode === 'custom') {
+            if (!customProblem || !customProblem.title || !customProblem.description || !customProblem.testCases || customProblem.testCases.length === 0) {
+                return NextResponse.json({ error: 'Custom problem details are incomplete' }, { status: 400 });
+            }
+
+            const customSlug = customProblem.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + uuidv4().substring(0, 6);
+            
+            const newProblem = await Problem.create({
+                title: customProblem.title,
+                slug: customSlug,
+                description: customProblem.description,
+                difficulty: customProblem.isPattern ? 'easy' : 'medium',
+                sampleInput: customProblem.testCases[0].input,
+                sampleOutput: customProblem.testCases[0].expectedOutput,
+                testCases: customProblem.testCases,
+                hints: customProblem.hint ? [customProblem.hint] : [],
+                tags: customProblem.isPattern ? ['pattern', 'custom'] : ['custom'],
+                isPattern: !!customProblem.isPattern,
+            });
+
+            problems = [newProblem];
+        } else if (mode === 'manual') {
             if (!Array.isArray(problemIds) || problemIds.length === 0) {
                 return NextResponse.json(
                     { error: 'Manual mode requires at least one problem selection' },
@@ -114,7 +135,8 @@ export async function POST(request: NextRequest) {
             createdBy: admin.adminId,
         });
 
-        const testLink = `${process.env.NEXT_PUBLIC_BASE_URL}/test/${slug}`;
+        const baseUrl = request.nextUrl.origin || process.env.NEXT_PUBLIC_BASE_URL;
+        const testLink = `${baseUrl}/test/${slug}`;
 
         return NextResponse.json({
             success: true,

@@ -25,6 +25,8 @@ export interface IProblem extends Document {
     testCases: ITestCase[];
     starterCode: IStarterCode;
     tags: string[];
+    hints: string[];
+    isPattern?: boolean;
     createdAt: Date;
 }
 
@@ -55,6 +57,8 @@ const ProblemSchema = new Schema<IProblem>({
         python: { type: String, default: '' },
     },
     tags: [{ type: String }],
+    hints: [{ type: String }],
+    isPattern: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
 });
 

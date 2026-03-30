@@ -8,9 +8,16 @@ export default function CreateTest() {
     const router = useRouter();
     const [title, setTitle] = useState('');
     const [duration, setDuration] = useState(60);
-    const [mode, setMode] = useState<'auto' | 'manual'>('auto');
+    const [mode, setMode] = useState<'auto' | 'manual' | 'custom'>('auto');
     const [problemCount, setProblemCount] = useState(3);
     const [difficulties, setDifficulties] = useState<string[]>(['easy', 'medium']);
+    
+    // Custom Problem state
+    const [customTitle, setCustomTitle] = useState('');
+    const [customDescription, setCustomDescription] = useState('');
+    const [customHint, setCustomHint] = useState('');
+    const [isPattern, setIsPattern] = useState(false);
+    const [customTestCases, setCustomTestCases] = useState([{ input: '', expectedOutput: '' }]);
     
     // Manual Selection state
     const [availableProblems, setAvailableProblems] = useState<any[]>([]);
@@ -71,11 +78,21 @@ export default function CreateTest() {
             return;
         }
 
+        if (mode === 'custom') {
+            if (!customTitle || !customDescription || customTestCases.some(tc => !tc.input || !tc.expectedOutput)) {
+                setError('Please fill all custom problem fields and test cases');
+                setLoading(false);
+                return;
+            }
+        }
+
         try {
             const token = localStorage.getItem('adminToken');
             const payload = mode === 'auto' 
                 ? { title, duration, problemCount, difficulties, mode }
-                : { title, duration, problemIds: selectedProblems, mode };
+                : mode === 'manual'
+                    ? { title, duration, problemIds: selectedProblems, mode }
+                    : { title, duration, mode, customProblem: { title: customTitle, description: customDescription, hint: customHint, isPattern, testCases: customTestCases } };
 
             const res = await fetch('/api/admin/tests', {
                 method: 'POST',
@@ -93,7 +110,7 @@ export default function CreateTest() {
                 return;
             }
 
-            setResult({ link: data.test.link, slug: data.test.slug });
+            setResult({ link: `${window.location.origin}/test/${data.test.slug}`, slug: data.test.slug });
         } catch {
             setError('Network error');
         } finally {
@@ -187,6 +204,13 @@ export default function CreateTest() {
                             >
                                 Manual Selection
                             </button>
+                            <button
+                                type="button"
+                                className={`flex-1 py-2 lg:text-sm text-xs font-medium rounded-lg transition-all ${mode === 'custom' ? 'bg-slate-100 text-slate-900 shadow' : 'text-slate-600 hover:text-slate-800'}`}
+                                onClick={() => setMode('custom')}
+                            >
+                                Custom Problem
+                            </button>
                         </div>
 
                         {mode === 'auto' ? (
@@ -230,7 +254,7 @@ export default function CreateTest() {
                                     />
                                 </div>
                             </>
-                        ) : (
+                        ) : mode === 'manual' ? (
                             <div className="space-y-3">
                                 <label className="block text-sm font-medium text-slate-700">Select Problems</label>
                                 {fetchingProblems ? (
@@ -281,7 +305,45 @@ export default function CreateTest() {
                                 )}
                                 <div className="text-xs text-slate-600 text-right">{selectedProblems.length} problem(s) selected</div>
                             </div>
-                        )}
+                        ) : mode === 'custom' ? (
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Problem Title</label>
+                                    <input type="text" value={customTitle} onChange={e => setCustomTitle(e.target.value)} className="input-field" placeholder="e.g. Reverse a String or Print Star Pattern" />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input type="checkbox" id="isPattern" checked={isPattern} onChange={e => setIsPattern(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded bg-gray-100 border-gray-300 focus:ring-indigo-500" />
+                                    <label htmlFor="isPattern" className="text-sm font-medium text-slate-700">Is this a Pattern Problem (Easy)?</label>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Problem Description</label>
+                                    <textarea value={customDescription} onChange={e => setCustomDescription(e.target.value)} className="input-field h-24 resize-none" placeholder="Describe the problem statement..."></textarea>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Hint (Optional)</label>
+                                    <textarea value={customHint} onChange={e => setCustomHint(e.target.value)} className="input-field h-16 resize-none" placeholder="Optional hint for candidates..."></textarea>
+                                </div>
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="block text-sm font-medium text-slate-700">Test Cases</label>
+                                        <button type="button" onClick={() => setCustomTestCases([...customTestCases, { input: '', expectedOutput: '' }])} className="text-xs text-indigo-600 hover:text-indigo-800 font-medium">+ Add Test Case</button>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {customTestCases.map((tc, idx) => (
+                                            <div key={idx} className="flex gap-2 items-start">
+                                                <div className="flex-1 space-y-2">
+                                                    <input type="text" value={tc.input} onChange={e => { const updated = [...customTestCases]; updated[idx].input = e.target.value; setCustomTestCases(updated); }} className="input-field text-sm py-2" placeholder="Input (e.g. 5 or 'hello')" />
+                                                    <input type="text" value={tc.expectedOutput} onChange={e => { const updated = [...customTestCases]; updated[idx].expectedOutput = e.target.value; setCustomTestCases(updated); }} className="input-field text-sm py-2" placeholder="Expected Output" />
+                                                </div>
+                                                {customTestCases.length > 1 && (
+                                                    <button type="button" onClick={() => setCustomTestCases(customTestCases.filter((_, i) => i !== idx))} className="text-red-500 hover:text-red-700 text-sm mt-2 px-2">✕</button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : null}
 
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-2">Duration (minutes)</label>
