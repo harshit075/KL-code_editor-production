@@ -40,7 +40,7 @@ export default function CreateTest() {
                 setFetchingProblems(true);
                 try {
                     const token = localStorage.getItem('adminToken');
-                    const res = await fetch('/api/problems?limit=100', {
+                    const res = await fetch('/api/problems?limit=1000', {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     const data = await res.json();
@@ -260,7 +260,7 @@ export default function CreateTest() {
                                 {fetchingProblems ? (
                                     <div className="text-sm text-slate-600 py-4 text-center">Loading problems...</div>
                                 ) : (
-                                    <div className="max-h-64 overflow-y-auto space-y-2 pr-2 custom-scrollbar border border-slate-200 rounded-xl p-2 bg-white/30">
+                                    <div className="max-h-[500px] overflow-y-auto space-y-2 pr-2 custom-scrollbar border border-slate-200 rounded-xl p-2 bg-white/30">
                                         {availableProblems.map((p) => {
                                             const isSelected = selectedProblems.includes(p._id);
                                             return (
@@ -333,7 +333,7 @@ export default function CreateTest() {
                                             <div key={idx} className="flex gap-2 items-start">
                                                 <div className="flex-1 space-y-2">
                                                     <input type="text" value={tc.input} onChange={e => { const updated = [...customTestCases]; updated[idx].input = e.target.value; setCustomTestCases(updated); }} className="input-field text-sm py-2" placeholder="Input (e.g. 5 or 'hello')" />
-                                                    <input type="text" value={tc.expectedOutput} onChange={e => { const updated = [...customTestCases]; updated[idx].expectedOutput = e.target.value; setCustomTestCases(updated); }} className="input-field text-sm py-2" placeholder="Expected Output" />
+                                                    <textarea value={tc.expectedOutput} onChange={e => { const updated = [...customTestCases]; updated[idx].expectedOutput = e.target.value; setCustomTestCases(updated); }} className="input-field text-sm py-2 min-h-[80px] resize-y" placeholder="Expected Output"></textarea>
                                                 </div>
                                                 {customTestCases.length > 1 && (
                                                     <button type="button" onClick={() => setCustomTestCases(customTestCases.filter((_, i) => i !== idx))} className="text-red-500 hover:text-red-700 text-sm mt-2 px-2">✕</button>
