@@ -29,8 +29,29 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Problem not found' }, { status: 404 });
         }
 
+        // Default wrappers: read stdin, call solution(), print result
+        const DEFAULT_WRAPPERS: Record<string, string> = {
+            javascript: `const fs = require('fs');\n{{USER_CODE}}\nconst data = fs.readFileSync(0, 'utf-8').trim();\nconst result = solution(data);\nif (result !== undefined) console.log(result);`,
+            python: `import sys\n{{USER_CODE}}\ndata = sys.stdin.read().strip()\nresult = solution(data)\nif result is not None:\n    print(result)`,
+            c: `#include <stdio.h>\n#include <string.h>\n{{USER_CODE}}\nint main() {\n    char buf[65536];\n    int n = fread(buf, 1, sizeof(buf)-1, stdin);\n    buf[n] = '\\0';\n    solution(buf);\n    return 0;\n}`,
+            cpp: `#include <iostream>\n#include <string>\nusing namespace std;\n{{USER_CODE}}\nint main() {\n    string data, line;\n    while(getline(cin, line)) data += line + "\\n";\n    solution(data);\n    return 0;\n}`,
+            java: `import java.util.*;\nimport java.io.*;\npublic class Main {\n    {{USER_CODE}}\n    public static void main(String[] args) throws Exception {\n        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));\n        StringBuilder sb = new StringBuilder();\n        String line;\n        while ((line = br.readLine()) != null) sb.append(line).append("\\n");\n        System.out.println(solution(sb.toString().trim()));\n    }\n}`,
+        };
+
+        // Wrap code: prefer admin-defined wrapper, fall back to default
+        let finalCode = code;
+        const customWrapper = problem.wrapperCode?.[language as keyof typeof problem.wrapperCode] as string | undefined;
+        if (customWrapper && customWrapper.includes('{{USER_CODE}}')) {
+            finalCode = customWrapper.replace('{{USER_CODE}}', code);
+        } else {
+            const defaultWrapper = DEFAULT_WRAPPERS[language];
+            if (defaultWrapper) {
+                finalCode = defaultWrapper.replace('{{USER_CODE}}', code);
+            }
+        }
+
         // Run code against test cases
-        const results = await runTestCases(code, language, problem.testCases);
+        const results = await runTestCases(finalCode, language, problem.testCases);
 
         const testCasesPassed = results.filter((r) => r.passed).length;
         const totalTestCases = problem.testCases.length;

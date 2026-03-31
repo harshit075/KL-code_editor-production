@@ -68,6 +68,18 @@ export async function POST(request: NextRequest) {
 
             const customSlug = customProblem.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + uuidv4().substring(0, 6);
             
+            const starterCode = customProblem.usesWrapper ? {
+                javascript: customProblem.jsStarterCode || '',
+                python: customProblem.pythonStarterCode || '',
+                c: '', cpp: '', java: ''
+            } : undefined;
+
+            const wrapperCode = customProblem.usesWrapper ? {
+                javascript: customProblem.jsWrapperCode || '',
+                python: customProblem.pythonWrapperCode || '',
+                c: '', cpp: '', java: ''
+            } : undefined;
+
             const newProblem = await Problem.create({
                 title: customProblem.title,
                 slug: customSlug,
@@ -79,6 +91,8 @@ export async function POST(request: NextRequest) {
                 hints: customProblem.hint ? [customProblem.hint] : [],
                 tags: customProblem.isPattern ? ['pattern', 'custom'] : ['custom'],
                 isPattern: !!customProblem.isPattern,
+                ...(starterCode && { starterCode }),
+                ...(wrapperCode && { wrapperCode }),
             });
 
             problems = [newProblem];

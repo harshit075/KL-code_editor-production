@@ -84,15 +84,25 @@ export default function CodingEnvironment() {
         setProblems(data.test.problems);
         setRemainingMs(data.remainingMs);
 
-        // Initialize codes with starter code
+        // Initialize codes with starter code (wrapper is hidden, only the function stub is shown)
         const initialCodes: Record<string, Record<string, string>> = {};
         data.test.problems.forEach((p: Problem) => {
           initialCodes[p._id] = {
-            javascript: p.starterCode?.javascript || '// Write your solution here\n',
-            python: p.starterCode?.python || '# Write your solution here\nimport sys\n\ndef main():\n    pass\n\nif __name__ == "__main__":\n    main()\n',
-            c: p.starterCode?.c || '#include <stdio.h>\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n',
-            cpp: p.starterCode?.cpp || '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n',
-            java: p.starterCode?.java || 'import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Write your solution here\n    }\n}\n',
+            javascript: p.starterCode?.javascript && p.starterCode.javascript.trim()
+              ? p.starterCode.javascript
+              : 'function solution(input) {\n  // Write your code here\n}\n',
+            python: p.starterCode?.python && p.starterCode.python.trim()
+              ? p.starterCode.python
+              : 'def solution(data):\n    # Write your code here\n    pass\n',
+            c: p.starterCode?.c && p.starterCode.c.trim()
+              ? p.starterCode.c
+              : 'int solution(int input) {\n    // Write your code here\n    return 0;\n}\n',
+            cpp: p.starterCode?.cpp && p.starterCode.cpp.trim()
+              ? p.starterCode.cpp
+              : 'int solution(int input) {\n    // Write your code here\n    return 0;\n}\n',
+            java: p.starterCode?.java && p.starterCode.java.trim()
+              ? p.starterCode.java
+              : 'int solution(int input) {\n    // Write your code here\n    return 0;\n}\n',
           };
         });
         setCodes(initialCodes);
@@ -158,6 +168,7 @@ export default function CodingEnvironment() {
           code: currentCode,
           language,
           input: input || currentProblem.sampleInput,
+          problemId: currentProblem._id,
         }),
       });
 

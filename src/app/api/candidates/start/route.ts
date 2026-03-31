@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
         const test = await Test.findById(candidate.testId).populate(
             'problems',
-            'title slug description difficulty constraints sampleInput sampleOutput starterCode'
+            'title slug description difficulty constraints sampleInput sampleOutput starterCode hints tags'
         );
 
         if (!test) {

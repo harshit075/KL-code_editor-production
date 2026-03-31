@@ -18,6 +18,11 @@ export default function CreateTest() {
     const [customHint, setCustomHint] = useState('');
     const [isPattern, setIsPattern] = useState(false);
     const [customTestCases, setCustomTestCases] = useState([{ input: '', expectedOutput: '' }]);
+    const [usesWrapper, setUsesWrapper] = useState(false);
+    const [jsStarterCode, setJsStarterCode] = useState('// Write your function here\nfunction solution(input) {\n  \n}');
+    const [jsWrapperCode, setJsWrapperCode] = useState('const fs = require("fs");\nfunction main() {\n  const input = fs.readFileSync(0, "utf-8").trim();\n  const result = solution(input);\n  console.log(result);\n}\n\n{{USER_CODE}}\n\nmain();');
+    const [pythonStarterCode, setPythonStarterCode] = useState('# Write your function here\ndef solution(data):\n  pass');
+    const [pythonWrapperCode, setPythonWrapperCode] = useState('import sys\n\n{{USER_CODE}}\n\ndef main():\n  input_data = sys.stdin.read().strip()\n  result = solution(input_data)\n  print(result)\n\nif __name__ == "__main__":\n  main()');
     
     // Manual Selection state
     const [availableProblems, setAvailableProblems] = useState<any[]>([]);
@@ -92,7 +97,23 @@ export default function CreateTest() {
                 ? { title, duration, problemCount, difficulties, mode }
                 : mode === 'manual'
                     ? { title, duration, problemIds: selectedProblems, mode }
-                    : { title, duration, mode, customProblem: { title: customTitle, description: customDescription, hint: customHint, isPattern, testCases: customTestCases } };
+                    : { 
+                        title, 
+                        duration, 
+                        mode, 
+                        customProblem: { 
+                            title: customTitle, 
+                            description: customDescription, 
+                            hint: customHint, 
+                            isPattern, 
+                            testCases: customTestCases,
+                            usesWrapper,
+                            jsStarterCode,
+                            jsWrapperCode,
+                            pythonStarterCode,
+                            pythonWrapperCode
+                        } 
+                      };
 
             const res = await fetch('/api/admin/tests', {
                 method: 'POST',
@@ -322,6 +343,38 @@ export default function CreateTest() {
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-2">Hint (Optional)</label>
                                     <textarea value={customHint} onChange={e => setCustomHint(e.target.value)} className="input-field h-16 resize-none" placeholder="Optional hint for candidates..."></textarea>
+                                </div>
+                                <div className="border border-slate-200 rounded-xl p-4 bg-white/50 space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <input type="checkbox" id="usesWrapper" checked={usesWrapper} onChange={e => setUsesWrapper(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded bg-gray-100 border-gray-300 focus:ring-indigo-500" />
+                                        <label htmlFor="usesWrapper" className="text-sm font-bold text-slate-800">Use Wrapper Code Pattern</label>
+                                    </div>
+                                    <p className="text-xs text-slate-600">Provide predefined wrapper code (like Leetcode) where candidates only implement the main logic function.</p>
+                                    
+                                    {usesWrapper && (
+                                        <div className="space-y-4 pt-2">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-xs font-semibold text-slate-700 mb-1">JS Starter Code</label>
+                                                    <textarea value={jsStarterCode} onChange={e => setJsStarterCode(e.target.value)} className="input-field h-32 text-xs font-mono" placeholder="function solution() {}" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-semibold text-slate-700 mb-1">JS Wrapper (Use {'{{USER_CODE}}'})</label>
+                                                    <textarea value={jsWrapperCode} onChange={e => setJsWrapperCode(e.target.value)} className="input-field h-32 text-xs font-mono" />
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-xs font-semibold text-slate-700 mb-1">Python Starter Code</label>
+                                                    <textarea value={pythonStarterCode} onChange={e => setPythonStarterCode(e.target.value)} className="input-field h-32 text-xs font-mono" placeholder="def solution(): pass" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-semibold text-slate-700 mb-1">Python Wrapper (Use {'{{USER_CODE}}'})</label>
+                                                    <textarea value={pythonWrapperCode} onChange={e => setPythonWrapperCode(e.target.value)} className="input-field h-32 text-xs font-mono" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                                 <div>
                                     <div className="flex justify-between items-center mb-2">

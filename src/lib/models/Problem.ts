@@ -24,6 +24,7 @@ export interface IProblem extends Document {
     sampleOutput: string;
     testCases: ITestCase[];
     starterCode: IStarterCode;
+    wrapperCode?: IStarterCode;
     tags: string[];
     hints: string[];
     isPattern?: boolean;
@@ -50,6 +51,13 @@ const ProblemSchema = new Schema<IProblem>({
     sampleOutput: { type: String, required: true },
     testCases: [TestCaseSchema],
     starterCode: {
+        c: { type: String, default: '' },
+        cpp: { type: String, default: '' },
+        java: { type: String, default: '' },
+        javascript: { type: String, default: '' },
+        python: { type: String, default: '' },
+    },
+    wrapperCode: {
         c: { type: String, default: '' },
         cpp: { type: String, default: '' },
         java: { type: String, default: '' },
