@@ -38,12 +38,20 @@ export async function POST(request: NextRequest) {
             java: `import java.util.*;\nimport java.io.*;\npublic class Main {\n    {{USER_CODE}}\n    public static void main(String[] args) throws Exception {\n        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));\n        StringBuilder sb = new StringBuilder();\n        String line;\n        while ((line = br.readLine()) != null) sb.append(line).append("\\n");\n        System.out.println(solution(sb.toString().trim()));\n    }\n}`,
         };
 
+        const hasEntryPoint = (src: string, lang: string) => {
+            if (lang === 'c' || lang === 'cpp') return /int\s+main\s*\(/.test(src);
+            if (lang === 'java') return /public\s+static\s+void\s+main/.test(src);
+            if (lang === 'javascript') return !/solution\s*\(/.test(src) && !/function\s+solution/.test(src) && !/const\s+solution/.test(src);
+            if (lang === 'python') return !/def\s+solution/.test(src);
+            return false;
+        };
+
         // Wrap code: prefer admin-defined wrapper, fall back to default
         let finalCode = code;
         const customWrapper = problem.wrapperCode?.[language as keyof typeof problem.wrapperCode] as string | undefined;
         if (customWrapper && customWrapper.includes('{{USER_CODE}}')) {
             finalCode = customWrapper.replace('{{USER_CODE}}', code);
-        } else {
+        } else if (!hasEntryPoint(code, language)) {
             const defaultWrapper = DEFAULT_WRAPPERS[language];
             if (defaultWrapper) {
                 finalCode = defaultWrapper.replace('{{USER_CODE}}', code);

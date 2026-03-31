@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
+import Test from '@/lib/models/Test';
+import Problem from '@/lib/models/Problem';
 import Candidate from '@/lib/models/Candidate';
 import Submission from '@/lib/models/Submission';
 import { authenticateAdmin } from '@/lib/auth';
+
+Test.init();
+Problem.init();
 
 export async function DELETE(
     request: NextRequest,

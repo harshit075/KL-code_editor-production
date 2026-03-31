@@ -22,6 +22,14 @@ export async function POST(request: NextRequest) {
             java: `import java.util.*;\nimport java.io.*;\npublic class Main {\n    {{USER_CODE}}\n    public static void main(String[] args) throws Exception {\n        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));\n        StringBuilder sb = new StringBuilder();\n        String line;\n        while ((line = br.readLine()) != null) sb.append(line).append("\\n");\n        System.out.println(solution(sb.toString().trim()));\n    }\n}`,
         };
 
+        const hasEntryPoint = (src: string, lang: string) => {
+            if (lang === 'c' || lang === 'cpp') return /int\s+main\s*\(/.test(src);
+            if (lang === 'java') return /public\s+static\s+void\s+main/.test(src);
+            if (lang === 'javascript') return !/solution\s*\(/.test(src) && !/function\s+solution/.test(src) && !/const\s+solution/.test(src);
+            if (lang === 'python') return !/def\s+solution/.test(src);
+            return false;
+        };
+
         if (problemId) {
             await dbConnect();
             const problem = await Problem.findById(problemId);
@@ -30,8 +38,8 @@ export async function POST(request: NextRequest) {
                 if (customWrapper && customWrapper.includes('{{USER_CODE}}')) {
                     // Use admin-defined wrapper
                     code = customWrapper.replace('{{USER_CODE}}', code);
-                } else {
-                    // Fall back to built-in default wrapper
+                } else if (!hasEntryPoint(code, language)) {
+                    // Fall back to built-in default wrapper only if user didn't write a complete execution block
                     const defaultWrapper = DEFAULT_WRAPPERS[language];
                     if (defaultWrapper) {
                         code = defaultWrapper.replace('{{USER_CODE}}', code);
@@ -39,10 +47,12 @@ export async function POST(request: NextRequest) {
                 }
             }
         } else {
-            // No problemId — still apply default wrapper so function gets called
-            const defaultWrapper = DEFAULT_WRAPPERS[language];
-            if (defaultWrapper) {
-                code = defaultWrapper.replace('{{USER_CODE}}', code);
+            // No problemId — apply default wrapper only if necessary
+            if (!hasEntryPoint(code, language)) {
+                const defaultWrapper = DEFAULT_WRAPPERS[language];
+                if (defaultWrapper) {
+                    code = defaultWrapper.replace('{{USER_CODE}}', code);
+                }
             }
         }
 
