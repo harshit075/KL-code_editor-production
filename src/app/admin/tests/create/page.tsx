@@ -159,10 +159,10 @@ export default function CreateTest() {
         if (!emails || !result) return;
         
         const bodyContent = `${emailDescription}\n\nTest Link: ${result.link}\n\nPlease click the link above or copy and paste it into your browser.\n\nGood luck!`;
-        const mailtoLink = `mailto:${encodeURIComponent(emails)}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(bodyContent)}`;
         
-        // Open the default email client
-        window.location.href = mailtoLink;
+        // Open Gmail in a new tab
+        const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(emails)}&su=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(bodyContent)}`;
+        window.open(gmailLink, '_blank');
         
         setEmailStatus('success');
         setTimeout(() => setEmailStatus('idle'), 5000);
@@ -264,7 +264,7 @@ export default function CreateTest() {
                                     disabled={!emails.trim()} 
                                     className="btn-primary w-full py-3 flex justify-center items-center font-medium"
                                 >
-                                    Open Email App to Send Link
+                                    Open Gmail to Send Link
                                 </button>
                             </div>
                         </div>

@@ -85,6 +85,31 @@ export default function AllCandidatesPage() {
         }
     };
 
+    const handleDeleteAllCandidates = async () => {
+        if (candidates.length === 0) return;
+        
+        if (!window.confirm('Are you ABSOLUTELY sure you want to delete ALL candidates? This will permanently delete all records and submissions.')) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('adminToken');
+            const res = await fetch(`/api/admin/candidates`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                setCandidates([]);
+            } else {
+                alert('Failed to delete all candidates');
+            }
+        } catch (err) {
+            console.error('Delete all error', err);
+            alert('An error occurred trying to delete all candidates');
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-slate-50">
@@ -101,9 +126,19 @@ export default function AllCandidatesPage() {
         <div className="min-h-screen bg-slate-50">
             <Navbar isAdmin />
             <div className="mx-auto max-w-7xl px-4 py-8">
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-slate-900">All Candidates</h1>
-                    <p className="text-sm text-slate-600 mt-1">Detailed overview of candidate domains, scores, and code submissions across all tests.</p>
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 className="text-2xl font-bold text-slate-900">All Candidates</h1>
+                        <p className="text-sm text-slate-600 mt-1">Detailed overview of candidate domains, scores, and code submissions across all tests.</p>
+                    </div>
+                    {candidates.length > 0 && (
+                        <button
+                            onClick={handleDeleteAllCandidates}
+                            className="btn-primary bg-red-500 hover:bg-red-600 border-red-500 shadow-red-500/20 text-sm flex items-center gap-2"
+                        >
+                            🗑️ Delete All Candidates
+                        </button>
+                    )}
                 </div>
 
                 <div className="glass-card overflow-hidden">

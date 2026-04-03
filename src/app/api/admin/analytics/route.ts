@@ -18,18 +18,18 @@ export async function GET(request: NextRequest) {
         const testIds = await Test.find({ createdBy: admin.adminId }).select('_id');
         const testIdList = testIds.map((t) => t._id);
 
-        const totalCandidates = await Candidate.countDocuments({
-            testId: { $in: testIdList },
-        });
-        const completedCandidates = await Candidate.countDocuments({
-            testId: { $in: testIdList },
-            status: { $in: ['completed', 'timed-out'] },
-        });
-
-        const candidates = await Candidate.find({
-            testId: { $in: testIdList },
-            status: { $in: ['completed', 'timed-out'] },
-        }).select('score totalScore');
+        const [totalCandidates, completedCandidates, candidates, totalSubmissions] = await Promise.all([
+            Candidate.countDocuments({ testId: { $in: testIdList } }),
+            Candidate.countDocuments({
+                testId: { $in: testIdList },
+                status: { $in: ['completed', 'timed-out'] },
+            }),
+            Candidate.find({
+                testId: { $in: testIdList },
+                status: { $in: ['completed', 'timed-out'] },
+            }).select('score totalScore'),
+            Submission.countDocuments({ testId: { $in: testIdList } })
+        ]);
 
         const averageScore =
             candidates.length > 0
@@ -40,10 +40,6 @@ export async function GET(request: NextRequest) {
                     ) / candidates.length
                 )
                 : 0;
-
-        const totalSubmissions = await Submission.countDocuments({
-            testId: { $in: testIdList },
-        });
 
         return NextResponse.json({
             analytics: {

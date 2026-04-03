@@ -19,21 +19,36 @@ export async function GET(request: NextRequest) {
             .populate('problems', 'title difficulty')
             .sort({ createdAt: -1 });
 
-        // Get candidate counts for each test
-        const testsWithStats = await Promise.all(
-            tests.map(async (test) => {
-                const candidateCount = await Candidate.countDocuments({ testId: test._id });
-                const completedCount = await Candidate.countDocuments({
-                    testId: test._id,
-                    status: { $in: ['completed', 'timed-out'] },
-                });
-                return {
-                    ...test.toObject(),
-                    candidateCount,
-                    completedCount,
-                };
-            })
-        );
+        // Get candidate counts for each test using a single aggregation query
+        const testIds = tests.map(t => t._id);
+        const stats = await Candidate.aggregate([
+            { $match: { testId: { $in: testIds } } },
+            {
+                $group: {
+                    _id: "$testId",
+                    candidateCount: { $sum: 1 },
+                    completedCount: {
+                        $sum: {
+                            $cond: [{ $in: ["$status", ["completed", "timed-out"]] }, 1, 0]
+                        }
+                    }
+                }
+            }
+        ]);
+
+        const statsMap = stats.reduce((acc, stat) => {
+            acc[stat._id.toString()] = stat;
+            return acc;
+        }, {} as Record<string, { candidateCount: number, completedCount: number }>);
+
+        const testsWithStats = tests.map(test => {
+            const stat = statsMap[test._id.toString()] || { candidateCount: 0, completedCount: 0 };
+            return {
+                ...test.toObject(),
+                candidateCount: stat.candidateCount,
+                completedCount: stat.completedCount,
+            };
+        });
 
         return NextResponse.json({ tests: testsWithStats });
     } catch (error: unknown) {
@@ -165,6 +180,42 @@ export async function POST(request: NextRequest) {
         }, { status: 201 });
     } catch (error: unknown) {
         console.error('Test creation error:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}
+
+export async function DELETE(request: NextRequest) {
+    try {
+        const admin = authenticateAdmin(request);
+        if (!admin) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        await dbConnect();
+        
+        // Find all tests created by this admin
+        const tests = await Test.find({ createdBy: admin.adminId }, '_id');
+        const testIds = tests.map(t => t._id);
+
+        if (testIds.length > 0) {
+            // Find all candidates for these tests
+            const candidates = await Candidate.find({ testId: { $in: testIds } }, '_id');
+            const candidateIds = candidates.map(c => c._id);
+            
+            if (candidateIds.length > 0) {
+                // Delete all submissions for these candidates
+                await Submission.deleteMany({ candidateId: { $in: candidateIds } });
+                // Delete all candidates
+                await Candidate.deleteMany({ _id: { $in: candidateIds } });
+            }
+            
+            // Delete all tests
+            await Test.deleteMany({ _id: { $in: testIds } });
+        }
+
+        return NextResponse.json({ success: true, message: 'All tests deleted' });
+    } catch (error: any) {
+        console.error('Delete all tests error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

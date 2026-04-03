@@ -51,3 +51,31 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
+
+export async function DELETE(request: NextRequest) {
+    try {
+        const admin = authenticateAdmin(request);
+        if (!admin) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        await dbConnect();
+        
+        // Find all candidates to get their IDs
+        const candidates = await Candidate.find({}, '_id');
+        const candidateIds = candidates.map(c => c._id);
+
+        if (candidateIds.length > 0) {
+            // Delete all their submissions first
+            await Submission.deleteMany({ candidateId: { $in: candidateIds } });
+            
+            // Delete all candidates
+            await Candidate.deleteMany({ _id: { $in: candidateIds } });
+        }
+
+        return NextResponse.json({ success: true, message: 'All candidates deleted' });
+    } catch (error: any) {
+        console.error('Delete all candidates error:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}

@@ -33,6 +33,8 @@ export default function AdminDashboard() {
     const [analytics, setAnalytics] = useState<Analytics | null>(null);
     const [loading, setLoading] = useState(true);
     const [adminName, setAdminName] = useState('');
+    const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
 
     useEffect(() => {
         const token = localStorage.getItem('adminToken');
@@ -78,6 +80,12 @@ export default function AdminDashboard() {
     const copyLink = (slug: string) => {
         const link = `${window.location.origin}/test/${slug}`;
         navigator.clipboard.writeText(link);
+        setCopiedSlug(slug);
+        setToastMessage('Test link copied to clipboard! 📋');
+        setTimeout(() => {
+            setCopiedSlug(null);
+            setToastMessage(null);
+        }, 3000);
     };
 
     const handleDeleteTest = async (testId: string) => {
@@ -104,6 +112,32 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleDeleteAllTests = async () => {
+        if (tests.length === 0) return;
+
+        if (!window.confirm('Are you ABSOLUTELY sure you want to delete ALL tests? All candidate attempts and submissions across all tests will also be permanently deleted.')) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('adminToken');
+            const res = await fetch(`/api/admin/tests`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (res.ok) {
+                setTests([]);
+                setAnalytics(prev => prev ? { ...prev, totalTests: 0, totalCandidates: 0, completedCandidates: 0, totalSubmissions: 0 } : null);
+            } else {
+                alert('Failed to delete all tests.');
+            }
+        } catch (err) {
+            console.error('Delete all error:', err);
+            alert('An error occurred while deleting all tests.');
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-slate-50">
@@ -121,6 +155,7 @@ export default function AdminDashboard() {
     }
 
     return (
+        <>
         <div className="min-h-screen bg-slate-50">
             <Navbar isAdmin />
 
@@ -167,9 +202,19 @@ export default function AdminDashboard() {
                 {/* Actions */}
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-lg font-semibold text-slate-800">Your Tests</h2>
-                    <Link href="/admin/tests/create" className="btn-primary text-sm">
-                        + Create Test
-                    </Link>
+                    <div className="flex items-center gap-3">
+                        {tests.length > 0 && (
+                            <button
+                                onClick={handleDeleteAllTests}
+                                className="btn-primary bg-red-500 hover:bg-red-600 border-red-500 shadow-red-500/20 text-sm flex items-center gap-2"
+                            >
+                                🗑️ Delete All Tests
+                            </button>
+                        )}
+                        <Link href="/admin/tests/create" className="btn-primary text-sm">
+                            + Create Test
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Tests table */}
@@ -228,10 +273,10 @@ export default function AdminDashboard() {
                                                 <div className="flex items-center justify-end gap-2">
                                                     <button
                                                         onClick={() => copyLink(test.slug)}
-                                                        className="text-xs text-indigo-400 hover:text-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-500/10 transition-smooth"
+                                                        className={`text-xs px-3 py-1.5 rounded-lg transition-smooth ${copiedSlug === test.slug ? 'text-emerald-400 bg-emerald-500/10' : 'text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10'}`}
                                                         title="Copy test link"
                                                     >
-                                                        📋 Copy Link
+                                                        {copiedSlug === test.slug ? '✅ Copied!' : '📋 Copy Link'}
                                                     </button>
                                                     <Link
                                                         href={`/admin/tests/${test._id}`}
@@ -257,5 +302,14 @@ export default function AdminDashboard() {
                 )}
             </div>
         </div>
+        
+        {/* Toast Notification */}
+        {toastMessage && (
+            <div className="fixed bottom-6 right-6 bg-slate-800 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-up z-50 border border-slate-700/50 backdrop-blur-md">
+                <span className="text-emerald-400 text-xl">✓</span>
+                <span className="text-sm font-medium">{toastMessage}</span>
+            </div>
+        )}
+        </>
     );
 }
