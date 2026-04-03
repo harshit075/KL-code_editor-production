@@ -54,12 +54,28 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Fetch any existing autosaved submissions
+        const mongoose = require('mongoose');
+        const Submission = mongoose.models.Submission || require('@/lib/models/Submission').default;
+        const autosaves = await Submission.find({ candidateId: candidate._id, testId: test._id }).lean() as any[];
+
+        // Map over problems to inject autosaved code into starterCode object
+        const problemsWithAutosaves = test.problems.map((p: any) => {
+            const probObj = p.toObject ? p.toObject() : p;
+            const saved = autosaves.find((s) => s.problemId.toString() === p._id.toString());
+            if (saved && saved.code && saved.language) {
+                if (!probObj.starterCode) probObj.starterCode = {};
+                probObj.starterCode[saved.language] = saved.code;
+            }
+            return probObj;
+        });
+
         return NextResponse.json({
             test: {
                 id: test._id,
                 title: test.title,
                 duration: test.duration,
-                problems: test.problems,
+                problems: problemsWithAutosaves,
             },
             candidate: {
                 id: candidate._id,

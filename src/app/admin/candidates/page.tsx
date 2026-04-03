@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import { Editor as MonacoEditor } from '@monaco-editor/react';
 
 interface Submission {
     problemTitle: string;
@@ -14,11 +15,13 @@ interface Submission {
 
 interface CandidateData {
     _id: string;
-    name: string;
+    fullName: string;
     email: string;
     status: string;
     score: number;
     totalScore: number;
+    copyPasteDetected?: boolean;
+    tabSwitchCount?: number;
     testData?: { title: string; slug: string };
     submissions: Submission[];
 }
@@ -28,6 +31,14 @@ export default function AllCandidatesPage() {
     const [candidates, setCandidates] = useState<CandidateData[]>([]);
     const [loading, setLoading] = useState(true);
     const [expandedCandidate, setExpandedCandidate] = useState<string | null>(null);
+    const [fullscreenCode, setFullscreenCode] = useState<{ code: string; language: string; title: string } | null>(null);
+    const [copiedIdx, setCopiedIdx] = useState<string | null>(null);
+
+    const handleCopy = useCallback((code: string, key: string) => {
+        navigator.clipboard.writeText(code);
+        setCopiedIdx(key);
+        setTimeout(() => setCopiedIdx(null), 2000);
+    }, []);
 
     useEffect(() => {
         const token = localStorage.getItem('adminToken');
@@ -86,6 +97,7 @@ export default function AllCandidatesPage() {
     }
 
     return (
+        <>
         <div className="min-h-screen bg-slate-50">
             <Navbar isAdmin />
             <div className="mx-auto max-w-7xl px-4 py-8">
@@ -110,7 +122,14 @@ export default function AllCandidatesPage() {
                                 <React.Fragment key={c._id}>
                                     <tr className={`hover:bg-slate-100/30 transition-smooth ${expandedCandidate === c._id ? 'bg-slate-100/10' : ''}`}>
                                         <td className="px-6 py-4">
-                                            <div className="font-medium text-slate-800">{c.name}</div>
+                                            <div className="font-medium text-slate-800 flex items-center gap-2">
+                                                {c.fullName}
+                                                {c.copyPasteDetected && (
+                                                    <span className="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                                                        Pasted
+                                                    </span>
+                                                )}
+                                            </div>
                                             <div className="text-xs text-slate-500 mt-1">{c.email}</div>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-slate-700">
@@ -142,35 +161,77 @@ export default function AllCandidatesPage() {
                                         </td>
                                     </tr>
                                     {expandedCandidate === c._id && (
-                                        <tr className="bg-white/50">
-                                            <td colSpan={5} className="px-6 py-6 border-b border-slate-200 relative shadow-inner">
-                                                <div className="space-y-6">
+                                        <tr style={{ backgroundColor: '#f8fafc' }}>
+                                            <td colSpan={5} className="px-6 py-6 border-b border-slate-200">
+                                                <div className="space-y-5">
                                                     {c.submissions.length === 0 ? (
-                                                        <p className="text-slate-500 text-sm italic">No code submissions recorded for this candidate.</p>
+                                                        <div className="flex flex-col items-center py-8 text-slate-400">
+                                                            <span className="text-4xl mb-2">📭</span>
+                                                            <p className="text-sm italic">No code submissions recorded for this candidate.</p>
+                                                        </div>
                                                     ) : (
-                                                        c.submissions.map((sub, i) => (
-                                                            <div key={i} className="bg-[#0d1117] rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                                                                <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200/60 bg-white/40">
-                                                                    <div className="flex items-center gap-3">
-                                                                        <h4 className="font-semibold text-slate-800">{sub.problemTitle}</h4>
-                                                                        <span className="text-[10px] bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded uppercase font-bold tracking-wider">
-                                                                            {sub.language}
-                                                                        </span>
+                                                        c.submissions.map((sub, i) => {
+                                                            const copyKey = `${c._id}-${i}`;
+                                                            const langMap: Record<string, string> = { c: 'c', cpp: 'cpp', python: 'python', java: 'java', javascript: 'javascript' };
+                                                            const monacoLang = langMap[sub.language] || 'javascript';
+                                                            const passed = sub.score;
+                                                            const total = sub.totalCases;
+                                                            const allPassed = passed === total;
+                                                            return (
+                                                                <div key={i} className="rounded-xl border border-slate-200 overflow-hidden shadow-md" style={{ background: '#fff' }}>
+                                                                    {/* Header toolbar */}
+                                                                    <div className="flex items-center justify-between px-5 py-3" style={{ background: 'linear-gradient(135deg, #f1f5f9 0%, #e8effa 100%)', borderBottom: '1px solid #e2e8f0' }}>
+                                                                        <div className="flex items-center gap-3">
+                                                                            <div className="flex gap-1.5">
+                                                                                <span className="w-3 h-3 rounded-full bg-red-400 inline-block" />
+                                                                                <span className="w-3 h-3 rounded-full bg-yellow-400 inline-block" />
+                                                                                <span className="w-3 h-3 rounded-full bg-green-400 inline-block" />
+                                                                            </div>
+                                                                            <h4 className="font-semibold text-slate-800 text-sm">{sub.problemTitle}</h4>
+                                                                            <span className="text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider">{sub.language}</span>
+                                                                        </div>
+                                                                        <div className="flex items-center gap-3">
+                                                                            <span className={`text-xs font-bold px-3 py-1 rounded-full ${allPassed ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}`}>
+                                                                                {allPassed ? '✅' : '⚠️'} {passed}/{total} passed
+                                                                            </span>
+                                                                            <button
+                                                                                onClick={() => handleCopy(sub.code, copyKey)}
+                                                                                className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all flex items-center gap-1.5"
+                                                                            >
+                                                                                {copiedIdx === copyKey ? '✅ Copied!' : '📋 Copy'}
+                                                                            </button>
+                                                                            <button
+                                                                                onClick={() => setFullscreenCode({ code: sub.code || '', language: monacoLang, title: sub.problemTitle })}
+                                                                                className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all"
+                                                                                title="Open fullscreen"
+                                                                            >
+                                                                                ⛶ Fullscreen
+                                                                            </button>
+                                                                        </div>
                                                                     </div>
-                                                                    <div className="text-xs text-slate-600 font-mono flex items-center gap-2">
-                                                                        <span>Passed:</span>
-                                                                        <span className={sub.score === sub.totalCases ? "text-emerald-400 font-bold" : "text-amber-400 font-bold"}>
-                                                                            {sub.score}/{sub.totalCases}
-                                                                        </span>
+                                                                    {/* Monaco Editor */}
+                                                                    <div style={{ height: '420px' }}>
+                                                                        <MonacoEditor
+                                                                            height="100%"
+                                                                            language={monacoLang}
+                                                                            theme="vs"
+                                                                            value={sub.code || '// No code submitted'}
+                                                                            options={{
+                                                                                readOnly: true,
+                                                                                minimap: { enabled: true },
+                                                                                fontSize: 14,
+                                                                                lineHeight: 22,
+                                                                                scrollBeyondLastLine: false,
+                                                                                wordWrap: 'on',
+                                                                                renderLineHighlight: 'all',
+                                                                                scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 },
+                                                                                padding: { top: 12, bottom: 12 },
+                                                                            }}
+                                                                        />
                                                                     </div>
                                                                 </div>
-                                                                <div className="p-4">
-                                                                    <pre className="text-sm text-slate-700 overflow-x-auto font-mono leading-relaxed">
-                                                                        <code dangerouslySetInnerHTML={{ __html: sub.code.replace(/</g, '&lt;').replace(/>/g, '&gt;') || '// No code submitted' }} />
-                                                                    </pre>
-                                                                </div>
-                                                            </div>
-                                                        ))
+                                                            );
+                                                        })
                                                     )}
                                                 </div>
                                             </td>
@@ -188,5 +249,53 @@ export default function AllCandidatesPage() {
                 </div>
             </div>
         </div>
+
+        {/* Fullscreen Code Modal */}
+        {fullscreenCode != null && (
+            <div
+                className="fixed inset-0 z-50 flex flex-col"
+                style={{ background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(8px)' }}
+            >
+                <div className="flex items-center justify-between px-6 py-4" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderBottom: '1px solid #334155' }}>
+                    <div className="flex items-center gap-3">
+                        <span className="text-white font-semibold text-sm">📄 {fullscreenCode?.title}</span>
+                        <span className="text-[10px] bg-indigo-500 text-white px-2 py-0.5 rounded uppercase font-bold tracking-wider">{fullscreenCode?.language}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => handleCopy(fullscreenCode?.code ?? '', 'fullscreen')}
+                            className="text-xs px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all"
+                        >
+                            {copiedIdx === 'fullscreen' ? '✅ Copied!' : '📋 Copy'}
+                        </button>
+                        <button
+                            onClick={() => setFullscreenCode(null)}
+                            className="text-xs px-3 py-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 text-white transition-all font-medium"
+                        >
+                            ✕ Close
+                        </button>
+                    </div>
+                </div>
+                <div className="flex-1">
+                    <MonacoEditor
+                        height="100%"
+                        language={fullscreenCode?.language ?? 'javascript'}
+                        theme="vs-dark"
+                        value={fullscreenCode?.code || '// No code submitted'}
+                        options={{
+                            readOnly: true,
+                            minimap: { enabled: true },
+                            fontSize: 15,
+                            lineHeight: 24,
+                            scrollBeyondLastLine: false,
+                            wordWrap: 'on',
+                            renderLineHighlight: 'all',
+                            padding: { top: 16, bottom: 16 },
+                        }}
+                    />
+                </div>
+            </div>
+        )}
+        </>
     );
 }

@@ -7,6 +7,7 @@ import ProblemPanel from '@/components/ProblemPanel';
 import IOConsole from '@/components/IOConsole';
 import Timer from '@/components/Timer';
 import AntiCheat from '@/components/AntiCheat';
+import CameraMonitor from '@/components/CameraMonitor';
 
 interface Problem {
   _id: string;
@@ -48,7 +49,10 @@ export default function CodingEnvironment() {
   const [submitting, setSubmitting] = useState(false);
   const [testResults, setTestResults] = useState<TestCaseResult[] | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const [tabWarning, setTabWarning] = useState(false);
+  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const [cameraViolationCount, setCameraViolationCount] = useState(0);
+  const [cameraWarningMsg, setCameraWarningMsg] = useState('');
+  const [isEndingTest, setIsEndingTest] = useState(false);
   const autosaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentProblem = problems[currentProblemIndex];
@@ -212,14 +216,16 @@ export default function CodingEnvironment() {
   };
 
   const handleFinalSubmit = useCallback(async () => {
-    if (!candidateId) return;
+    if (!candidateId || isEndingTest) return;
+    setIsEndingTest(true);
 
     try {
-      // Submit all current code first
-      for (const problem of problems) {
-        const code = codes[problem._id]?.[language];
-        if (code) {
-          await fetch('/api/candidates/submit', {
+      // Fire all submissions in parallel (don't await each one)
+      await Promise.allSettled(
+        problems.map((problem) => {
+          const code = codes[problem._id]?.[language];
+          if (!code) return Promise.resolve();
+          return fetch('/api/candidates/submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -229,9 +235,9 @@ export default function CodingEnvironment() {
               code,
               language,
             }),
-          }).catch(() => {});
-        }
-      }
+          });
+        })
+      );
 
       await fetch('/api/candidates/finalize', {
         method: 'POST',
@@ -242,16 +248,47 @@ export default function CodingEnvironment() {
       setSubmitted(true);
     } catch {
       console.error('Final submit failed');
+      setIsEndingTest(false); // re-enable button on failure
     }
-  }, [candidateId, problems, codes, language, testId]);
+  }, [candidateId, problems, codes, language, testId, isEndingTest]);
 
   const handleTabViolation = useCallback((_type: string, count: number) => {
-    setTabWarning(true);
-    setTimeout(() => setTabWarning(false), 5000);
-    if (count >= 5) {
+    setTabSwitchCount(count);
+    if (count >= 3) {
       handleFinalSubmit();
     }
   }, [handleFinalSubmit]);
+
+  const handleCameraViolation = useCallback((type: 'no-face' | 'multiple-faces', count: number) => {
+    const msg = type === 'no-face'
+      ? 'No face detected — please stay in front of your camera.'
+      : 'Multiple faces detected — outside assistance is not allowed.';
+    setCameraViolationCount(count);
+    setCameraWarningMsg(msg);
+    // Report to server
+    fetch('/api/candidates/tab-switch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ candidateId, reason: type }),
+    }).catch(() => {});
+    if (count >= 3) {
+      handleFinalSubmit();
+    }
+  }, [candidateId, handleFinalSubmit]);
+
+  const handleCameraPermissionDenied = useCallback(() => {
+    setCameraWarningMsg('⚠️ Camera access is required for this proctored test. Please allow camera access and refresh.');
+    setCameraViolationCount(-1); // sentinel: denied
+  }, []);
+
+  const handlePaste = useCallback(() => {
+    if (!candidateId) return;
+    fetch('/api/candidates/tab-switch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ candidateId, reason: 'paste' }),
+    }).catch(() => {});
+  }, [candidateId]);
 
   if (loading) {
     return (
@@ -295,11 +332,58 @@ export default function CodingEnvironment() {
   return (
     <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
       <AntiCheat candidateId={candidateId} onViolation={handleTabViolation} />
+      <CameraMonitor
+        onViolation={handleCameraViolation}
+        onPermissionDenied={handleCameraPermissionDenied}
+        maxViolations={3}
+      />
 
-      {/* Tab switch warning */}
-      {tabWarning && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-500/90 text-slate-900 px-6 py-3 rounded-xl shadow-2xl animate-bounce">
-          ⚠️ Tab switch detected! This is being recorded.
+      {/* Tab switch warning banners */}
+      {tabSwitchCount > 0 && tabSwitchCount < 3 && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-red-600 text-white px-6 py-3 rounded-xl shadow-2xl border border-red-400/50 animate-bounce">
+          <span className="text-xl">⚠️</span>
+          <div>
+            <div className="font-bold text-sm">Tab Switch Detected! ({tabSwitchCount}/3)</div>
+            <div className="text-xs text-red-200">Your test will be auto-submitted on the 3rd switch.</div>
+          </div>
+        </div>
+      )}
+      {tabSwitchCount >= 3 && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-red-700 text-white px-6 py-3 rounded-xl shadow-2xl border border-red-500/50">
+          <span className="text-xl">🚨</span>
+          <div>
+            <div className="font-bold text-sm">Auto-Submitting Your Test...</div>
+            <div className="text-xs text-red-200">3 tab switches detected. Your solution is being submitted.</div>
+          </div>
+        </div>
+      )}
+
+      {/* Camera violation banners */}
+      {cameraViolationCount === -1 && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-orange-600 text-white px-6 py-3 rounded-xl shadow-2xl border border-orange-400/50">
+          <span className="text-xl">📷</span>
+          <div>
+            <div className="font-bold text-sm">Camera Required</div>
+            <div className="text-xs text-orange-200">Please allow camera access and refresh to continue.</div>
+          </div>
+        </div>
+      )}
+      {cameraViolationCount > 0 && cameraViolationCount < 3 && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-red-600 text-white px-6 py-3 rounded-xl shadow-2xl border border-red-400/50 animate-bounce">
+          <span className="text-xl">🎥</span>
+          <div>
+            <div className="font-bold text-sm">Camera Alert! ({cameraViolationCount}/3)</div>
+            <div className="text-xs text-red-200">{cameraWarningMsg}</div>
+          </div>
+        </div>
+      )}
+      {cameraViolationCount >= 3 && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-red-700 text-white px-6 py-3 rounded-xl shadow-2xl border border-red-500/50">
+          <span className="text-xl">🚨</span>
+          <div>
+            <div className="font-bold text-sm">Auto-Submitting — Camera Violations</div>
+            <div className="text-xs text-red-200">3 camera violations detected. Your solution is being submitted.</div>
+          </div>
         </div>
       )}
 
@@ -318,9 +402,17 @@ export default function CodingEnvironment() {
           <Timer remainingMs={remainingMs} onTimeUp={handleFinalSubmit} />
           <button
             onClick={handleFinalSubmit}
-            className="btn-danger text-sm px-4 py-2"
+            disabled={isEndingTest}
+            className="btn-danger text-sm px-4 py-2 flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            End Test
+            {isEndingTest ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              'End Test'
+            )}
           </button>
         </div>
       </div>
@@ -346,6 +438,7 @@ export default function CodingEnvironment() {
               language={language}
               onChange={updateCode}
               onLanguageChange={setLanguage}
+              onPaste={handlePaste}
             />
           </div>
 

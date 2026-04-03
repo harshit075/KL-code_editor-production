@@ -34,6 +34,14 @@ export default function CreateTest() {
     const [error, setError] = useState('');
     const [copied, setCopied] = useState(false);
 
+    // Email state
+    const [emails, setEmails] = useState('');
+    const [emailSubject, setEmailSubject] = useState('Coding Assessment Invitation');
+    const [emailDescription, setEmailDescription] = useState('You have been invited to take a coding assessment. Please open the link below, fill in your information, and start the test.');
+    const [sendingEmails, setSendingEmails] = useState(false);
+    const [emailStatus, setEmailStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [emailError, setEmailError] = useState('');
+
     useEffect(() => {
         const token = localStorage.getItem('adminToken');
         if (!token) router.push('/admin/login');
@@ -147,6 +155,19 @@ export default function CreateTest() {
         }
     };
 
+    const handleSendEmails = () => {
+        if (!emails || !result) return;
+        
+        const bodyContent = `${emailDescription}\n\nTest Link: ${result.link}\n\nPlease click the link above or copy and paste it into your browser.\n\nGood luck!`;
+        const mailtoLink = `mailto:${encodeURIComponent(emails)}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(bodyContent)}`;
+        
+        // Open the default email client
+        window.location.href = mailtoLink;
+        
+        setEmailStatus('success');
+        setTimeout(() => setEmailStatus('idle'), 5000);
+    };
+
     return (
         <div className="min-h-screen bg-slate-50">
             <Navbar isAdmin />
@@ -176,7 +197,12 @@ export default function CreateTest() {
 
                         <div className="flex gap-3 justify-center">
                             <button
-                                onClick={() => { setResult(null); setTitle(''); }}
+                                onClick={() => { 
+                                    setResult(null); 
+                                    setTitle(''); 
+                                    setEmailStatus('idle');
+                                    setEmails('');
+                                }}
                                 className="btn-secondary text-sm"
                             >
                                 Create Another
@@ -187,6 +213,60 @@ export default function CreateTest() {
                             >
                                 Go to Dashboard
                             </button>
+                        </div>
+
+                        {/* Email Form */}
+                        <div className="mt-8 pt-8 border-t border-slate-200 w-full text-left">
+                            <h3 className="text-lg font-bold text-slate-800 mb-4">Send Link via Email</h3>
+                            
+                            {emailStatus === 'success' && (
+                                <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 px-4 py-3 rounded-xl mb-4 text-sm">
+                                    Emails sent successfully!
+                                </div>
+                            )}
+
+                            {emailStatus === 'error' && (
+                                <div className="bg-red-500/10 border border-red-500/20 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm">
+                                    {emailError || 'Failed to send emails.'}
+                                </div>
+                            )}
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Candidate Emails (comma separated)</label>
+                                    <input 
+                                        type="text" 
+                                        value={emails} 
+                                        onChange={e => setEmails(e.target.value)} 
+                                        className="input-field" 
+                                        placeholder="candidate1@example.com, candidate2@example.com"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Subject</label>
+                                    <input 
+                                        type="text" 
+                                        value={emailSubject} 
+                                        onChange={e => setEmailSubject(e.target.value)} 
+                                        className="input-field" 
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                                    <textarea 
+                                        value={emailDescription} 
+                                        onChange={e => setEmailDescription(e.target.value)} 
+                                        className="input-field h-24 resize-none" 
+                                    />
+                                </div>
+                                <button 
+                                    onClick={handleSendEmails} 
+                                    disabled={!emails.trim()} 
+                                    className="btn-primary w-full py-3 flex justify-center items-center font-medium"
+                                >
+                                    Open Email App to Send Link
+                                </button>
+                            </div>
                         </div>
                     </div>
                 ) : (

@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
+import { Editor as MonacoEditor } from '@monaco-editor/react';
 
 interface CandidateItem {
     _id: string;
@@ -14,6 +15,7 @@ interface CandidateItem {
     totalScore: number;
     status: string;
     tabSwitchCount: number;
+    copyPasteDetected: boolean;
     startedAt: string;
     submittedAt: string;
 }
@@ -56,6 +58,14 @@ export default function TestDetailPage() {
     const [loading, setLoading] = useState(true);
     const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null);
     const [viewingCode, setViewingCode] = useState<SubmissionItem | null>(null);
+    const [fullscreenCode, setFullscreenCode] = useState<{ code: string; language: string; title: string } | null>(null);
+    const [copiedIdx, setCopiedIdx] = useState<string | null>(null);
+
+    const handleCopy = useCallback((code: string, key: string) => {
+        navigator.clipboard.writeText(code);
+        setCopiedIdx(key);
+        setTimeout(() => setCopiedIdx(null), 2000);
+    }, []);
 
     useEffect(() => {
         const token = localStorage.getItem('adminToken');
@@ -152,6 +162,7 @@ export default function TestDetailPage() {
         : [];
 
     return (
+        <>
         <div className="min-h-screen bg-slate-50">
             <Navbar isAdmin />
 
@@ -230,6 +241,11 @@ export default function TestDetailPage() {
                                                 <span className={c.tabSwitchCount > 3 ? 'text-red-400 font-medium' : 'text-slate-600'}>
                                                     {c.tabSwitchCount}
                                                 </span>
+                                                {c.copyPasteDetected && (
+                                                    <span className="block mt-1 text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded w-max font-bold uppercase tracking-wider">
+                                                        Pasted Code
+                                                    </span>
+                                                )}
                                             </td>
                                             <td className="px-5 py-3">
                                                 <span className={`text-xs font-medium px-2 py-1 rounded-full ${c.status === 'completed' ? 'bg-emerald-500/15 text-emerald-400' :
@@ -290,9 +306,55 @@ export default function TestDetailPage() {
                                     </div>
                                 </div>
                                 {viewingCode?._id === sub._id && (
-                                    <pre className="bg-white rounded-lg p-4 text-sm text-slate-700 font-mono overflow-x-auto max-h-80 overflow-y-auto border border-slate-300/50">
-                                        {sub.code}
-                                    </pre>
+                                    <div className="mt-3 rounded-xl border border-slate-200 overflow-hidden shadow-md">
+                                        {/* Code header toolbar */}
+                                        <div className="flex items-center justify-between px-5 py-3" style={{ background: 'linear-gradient(135deg, #f1f5f9 0%, #e8effa 100%)', borderBottom: '1px solid #e2e8f0' }}>
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex gap-1.5">
+                                                    <span className="w-3 h-3 rounded-full bg-red-400 inline-block" />
+                                                    <span className="w-3 h-3 rounded-full bg-yellow-400 inline-block" />
+                                                    <span className="w-3 h-3 rounded-full bg-green-400 inline-block" />
+                                                </div>
+                                                <span className="text-sm font-semibold text-slate-800">
+                                                    {typeof sub.problemId === 'object' ? sub.problemId.title : 'Problem'}
+                                                </span>
+                                                <span className="text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider">{sub.language}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => handleCopy(sub.code, sub._id)}
+                                                    className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all"
+                                                >
+                                                    {copiedIdx === sub._id ? '✅ Copied!' : '📋 Copy'}
+                                                </button>
+                                                <button
+                                                    onClick={() => setFullscreenCode({ code: sub.code || '', language: sub.language === 'c' ? 'c' : sub.language === 'cpp' ? 'cpp' : sub.language === 'python' ? 'python' : sub.language === 'java' ? 'java' : 'javascript', title: typeof sub.problemId === 'object' ? sub.problemId.title : 'Problem' })}
+                                                    className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all"
+                                                >
+                                                    ⛶ Fullscreen
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div style={{ height: '420px' }}>
+                                            <MonacoEditor
+                                                height="100%"
+                                                language={sub.language === 'c' ? 'c' : sub.language === 'cpp' ? 'cpp' : sub.language === 'python' ? 'python' : sub.language === 'java' ? 'java' : 'javascript'}
+                                                theme="vs"
+                                                value={sub.code || '// No code submitted'}
+                                                options={{
+                                                    readOnly: true,
+                                                    minimap: { enabled: true },
+                                                    fontSize: 14,
+                                                    lineHeight: 22,
+                                                    scrollBeyondLastLine: false,
+                                                    wordWrap: 'on',
+                                                    renderLineHighlight: 'all',
+                                                    scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 },
+                                                    padding: { top: 12, bottom: 12 },
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         ))}
@@ -300,5 +362,53 @@ export default function TestDetailPage() {
                 )}
             </div>
         </div>
+
+        {/* Fullscreen Code Modal */}
+        {fullscreenCode != null && (
+            <div
+                className="fixed inset-0 z-50 flex flex-col"
+                style={{ background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(8px)' }}
+            >
+                <div className="flex items-center justify-between px-6 py-4" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderBottom: '1px solid #334155' }}>
+                    <div className="flex items-center gap-3">
+                        <span className="text-white font-semibold text-sm">📄 {fullscreenCode?.title}</span>
+                        <span className="text-[10px] bg-indigo-500 text-white px-2 py-0.5 rounded uppercase font-bold tracking-wider">{fullscreenCode?.language}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => handleCopy(fullscreenCode?.code ?? '', 'fullscreen')}
+                            className="text-xs px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all"
+                        >
+                            {copiedIdx === 'fullscreen' ? '✅ Copied!' : '📋 Copy'}
+                        </button>
+                        <button
+                            onClick={() => setFullscreenCode(null)}
+                            className="text-xs px-3 py-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 text-white transition-all font-medium"
+                        >
+                            ✕ Close
+                        </button>
+                    </div>
+                </div>
+                <div className="flex-1">
+                    <MonacoEditor
+                        height="100%"
+                        language={fullscreenCode?.language ?? 'javascript'}
+                        theme="vs-dark"
+                        value={fullscreenCode?.code || '// No code submitted'}
+                        options={{
+                            readOnly: true,
+                            minimap: { enabled: true },
+                            fontSize: 15,
+                            lineHeight: 24,
+                            scrollBeyondLastLine: false,
+                            wordWrap: 'on',
+                            renderLineHighlight: 'all',
+                            padding: { top: 16, bottom: 16 },
+                        }}
+                    />
+                </div>
+            </div>
+        )}
+        </>
     );
 }

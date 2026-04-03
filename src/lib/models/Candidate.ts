@@ -9,6 +9,7 @@ export interface ICandidate extends Document {
     startedAt: Date | null;
     submittedAt: Date | null;
     tabSwitchCount: number;
+    copyPasteDetected: boolean;
     score: number;
     totalScore: number;
     status: 'registered' | 'in-progress' | 'completed' | 'timed-out';
@@ -24,6 +25,7 @@ const CandidateSchema = new Schema<ICandidate>({
     startedAt: { type: Date, default: null },
     submittedAt: { type: Date, default: null },
     tabSwitchCount: { type: Number, default: 0 },
+    copyPasteDetected: { type: Boolean, default: false },
     score: { type: Number, default: 0 },
     totalScore: { type: Number, default: 0 },
     status: {

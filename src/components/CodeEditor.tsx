@@ -10,6 +10,7 @@ interface CodeEditorProps {
     language: string;
     onChange: (value: string) => void;
     onLanguageChange: (lang: string) => void;
+    onPaste?: () => void;
 }
 
 const LANGUAGE_OPTIONS = [
@@ -20,7 +21,7 @@ const LANGUAGE_OPTIONS = [
     { value: 'java', label: 'Java', monacoLang: 'java' },
 ];
 
-export default function CodeEditor({ code, language, onChange, onLanguageChange }: CodeEditorProps) {
+export default function CodeEditor({ code, language, onChange, onLanguageChange, onPaste }: CodeEditorProps) {
     const monacoLang = LANGUAGE_OPTIONS.find(l => l.value === language)?.monacoLang || 'javascript';
 
     return (
@@ -54,6 +55,11 @@ export default function CodeEditor({ code, language, onChange, onLanguageChange 
                     theme="light"
                     value={code}
                     onChange={(val) => onChange(val || '')}
+                    onMount={(editor) => {
+                        editor.onDidPaste(() => {
+                            if (onPaste) onPaste();
+                        });
+                    }}
                     options={{
                         minimap: { enabled: false },
                         fontSize: 14,

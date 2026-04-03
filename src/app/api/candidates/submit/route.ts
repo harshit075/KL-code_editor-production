@@ -33,16 +33,17 @@ export async function POST(request: NextRequest) {
         const DEFAULT_WRAPPERS: Record<string, string> = {
             javascript: `const fs = require('fs');\n{{USER_CODE}}\nconst data = fs.readFileSync(0, 'utf-8').trim();\nconst result = solution(data);\nif (result !== undefined) console.log(result);`,
             python: `import sys\n{{USER_CODE}}\ndata = sys.stdin.read().strip()\nresult = solution(data)\nif result is not None:\n    print(result)`,
-            c: `#include <stdio.h>\n#include <string.h>\n{{USER_CODE}}\nint main() {\n    char buf[65536];\n    int n = fread(buf, 1, sizeof(buf)-1, stdin);\n    buf[n] = '\\0';\n    solution(buf);\n    return 0;\n}`,
-            cpp: `#include <iostream>\n#include <string>\nusing namespace std;\n{{USER_CODE}}\nint main() {\n    string data, line;\n    while(getline(cin, line)) data += line + "\\n";\n    solution(data);\n    return 0;\n}`,
-            java: `import java.util.*;\nimport java.io.*;\npublic class Main {\n    {{USER_CODE}}\n    public static void main(String[] args) throws Exception {\n        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));\n        StringBuilder sb = new StringBuilder();\n        String line;\n        while ((line = br.readLine()) != null) sb.append(line).append("\\n");\n        System.out.println(solution(sb.toString().trim()));\n    }\n}`,
+            c: `#include <stdio.h>\n#include <stdlib.h>\n{{USER_CODE}}\nint main() {\n    int input;\n    if (scanf("%d", &input) == 1) {\n        printf("%d\\n", solution(input));\n    } else {\n        printf("%d\\n", solution(0));\n    }\n    return 0;\n}`,
+            cpp: `#include <iostream>\nusing namespace std;\n{{USER_CODE}}\nint main() {\n    int input;\n    if (cin >> input) {\n        cout << solution(input) << endl;\n    } else {\n        cout << solution(0) << endl;\n    }\n    return 0;\n}`,
+            java: `import java.util.*;\npublic class Main {\n    {{USER_CODE}}\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        if (scanner.hasNextInt()) {\n            System.out.println(solution(scanner.nextInt()));\n        } else {\n            System.out.println(solution(0));\n        }\n    }\n}`,
         };
 
         const hasEntryPoint = (src: string, lang: string) => {
             if (lang === 'c' || lang === 'cpp') return /int\s+main\s*\(/.test(src);
             if (lang === 'java') return /public\s+static\s+void\s+main/.test(src);
-            if (lang === 'javascript') return !/solution\s*\(/.test(src) && !/function\s+solution/.test(src) && !/const\s+solution/.test(src);
-            if (lang === 'python') return !/def\s+solution/.test(src);
+            // JS/Python: if code defines a solution() function we wrap it; if not, treat as standalone
+            if (lang === 'javascript') return !/function\s+solution|const\s+solution\s*=|let\s+solution\s*=/.test(src);
+            if (lang === 'python') return !/def\s+solution\s*\(/.test(src);
             return false;
         };
 

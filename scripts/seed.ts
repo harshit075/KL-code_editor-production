@@ -55,10 +55,54 @@ const problems = [
       { input: '5\n1 5 3 7 2\n9', expectedOutput: '1 3', isHidden: true },
     ],
     starterCode: {
-      javascript: '// Read input and solve Two Sum\nconst readline = require("readline");\nconst rl = readline.createInterface({ input: process.stdin });\nconst lines = [];\nrl.on("line", l => lines.push(l));\nrl.on("close", () => {\n  const n = parseInt(lines[0]);\n  const nums = lines[1].split(" ").map(Number);\n  const target = parseInt(lines[2]);\n  // Your solution here\n});\n',
-      c: '#include <stdio.h>\nint main() {\n    int n, target;\n    scanf("%d", &n);\n    int nums[n];\n    for(int i=0;i<n;i++) scanf("%d",&nums[i]);\n    scanf("%d",&target);\n    // Your solution here\n    return 0;\n}\n',
-      cpp: '#include <iostream>\n#include <vector>\nusing namespace std;\nint main() {\n    int n, target;\n    cin >> n;\n    vector<int> nums(n);\n    for(int i=0;i<n;i++) cin >> nums[i];\n    cin >> target;\n    // Your solution here\n    return 0;\n}\n',
-      java: 'import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        int[] nums = new int[n];\n        for(int i=0;i<n;i++) nums[i]=sc.nextInt();\n        int target = sc.nextInt();\n        // Your solution here\n    }\n}\n',
+      javascript: `// Read input and solve Two Sum
+const readline = require("readline");
+const rl = readline.createInterface({ input: process.stdin });
+const lines = [];
+rl.on("line", l => lines.push(l));
+rl.on("close", () => {
+  const n = parseInt(lines[0]);
+  const nums = lines[1].split(" ").map(Number);
+  const target = parseInt(lines[2]);
+  // Your solution here
+});
+`,
+      c: `#include <stdio.h>
+int main() {
+    int n, target;
+    scanf("%d", &n);
+    int nums[n];
+    for(int i=0;i<n;i++) scanf("%d",&nums[i]);
+    scanf("%d",&target);
+    // Your solution here
+    return 0;
+}
+`,
+      cpp: `#include <iostream>
+#include <vector>
+using namespace std;
+int main() {
+    int n, target;
+    cin >> n;
+    vector<int> nums(n);
+    for(int i=0;i<n;i++) cin >> nums[i];
+    cin >> target;
+    // Your solution here
+    return 0;
+}
+`,
+      java: `import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[] nums = new int[n];
+        for(int i=0;i<n;i++) nums[i]=sc.nextInt();
+        int target = sc.nextInt();
+        // Your solution here
+    }
+}
+`,
     },
   },
   {
@@ -71,7 +115,43 @@ const problems = [
       { input: 'world', expectedOutput: 'dlrow', isHidden: false },
       { input: 'abcdefg', expectedOutput: 'gfedcba', isHidden: true },
     ],
-    starterCode: { javascript: 'const readline=require("readline");\nconst rl=readline.createInterface({input:process.stdin});\nrl.on("line",s=>{\n  // reverse s and print\n});\n', c: '#include<stdio.h>\n#include<string.h>\nint main(){\n  char s[100001];\n  scanf("%s",s);\n  // reverse and print\n  return 0;\n}\n', cpp: '#include<iostream>\n#include<algorithm>\nusing namespace std;\nint main(){\n  string s;\n  cin>>s;\n  // reverse and print\n  return 0;\n}\n', java: 'import java.util.*;\npublic class Main{\n  public static void main(String[] a){\n    Scanner sc=new Scanner(System.in);\n    String s=sc.next();\n    // reverse and print\n  }\n}\n' },
+    starterCode: { javascript: `const readline=require("readline");
+const rl=readline.createInterface({input:process.stdin});
+rl.on("line", s => {
+  
+  // reverse s and print
+});
+`, c: `#include<stdio.h>
+#include<string.h>
+int main() {
+    
+  char s[100001];
+  scanf("%s",s);
+  // reverse and print
+  return 0;
+}
+`, cpp: `#include<iostream>
+#include<algorithm>
+using namespace std;
+int main() {
+    
+  string s;
+  cin>>s;
+  // reverse and print
+  return 0;
+}
+`, java: `import java.util.*;
+public class Main{
+  public static void main(String[] args) {
+        
+    Scanner sc = new Scanner(System.in);
+        
+    String s = sc.next();
+        
+    // reverse and print
+  }
+}
+` },
   },
   {
     title: 'Palindrome Check', slug: 'palindrome-check', difficulty: 'easy',
@@ -84,7 +164,35 @@ const problems = [
       { input: 'a', expectedOutput: 'true', isHidden: true },
       { input: 'abba', expectedOutput: 'true', isHidden: true },
     ],
-    starterCode: { javascript: 'const rl=require("readline").createInterface({input:process.stdin});\nrl.on("line",s=>{\n  // check palindrome\n});\n', c: '#include<stdio.h>\n#include<string.h>\nint main(){char s[100001];scanf("%s",s);/*check*/return 0;}\n', cpp: '#include<iostream>\nusing namespace std;\nint main(){string s;cin>>s;/*check*/return 0;}\n', java: 'import java.util.*;\npublic class Main{public static void main(String[] a){Scanner sc=new Scanner(System.in);String s=sc.next();/*check*/}}\n' },
+    starterCode: { javascript: `const rl = require("readline").createInterface({ input: process.stdin });
+
+rl.on("line", s => {
+  
+  // check palindrome
+});
+`, c: `#include<stdio.h>
+#include<string.h>
+int main() {
+    char s[100001];
+    scanf("%s", s);
+    // Your solution here
+    return 0;
+}
+`, cpp: `#include<iostream>
+using namespace std;
+int main() {
+    string s;
+    cin >> s;
+    // Your solution here
+    return 0;
+}
+`, java: `import java.util.*;
+public class Main{public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String s = sc.next();
+        // Your solution here
+    }}
+` },
   },
   {
     title: 'FizzBuzz', slug: 'fizzbuzz', difficulty: 'easy',
@@ -95,7 +203,34 @@ const problems = [
       { input: '5', expectedOutput: '1\n2\nFizz\n4\nBuzz', isHidden: false },
       { input: '15', expectedOutput: '1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz', isHidden: true },
     ],
-    starterCode: { javascript: 'const rl=require("readline").createInterface({input:process.stdin});\nrl.on("line",l=>{const n=parseInt(l);\n  // fizzbuzz\n});\n', c: '#include<stdio.h>\nint main(){int n;scanf("%d",&n);/*fizzbuzz*/return 0;}\n', cpp: '#include<iostream>\nusing namespace std;\nint main(){int n;cin>>n;/*fizzbuzz*/return 0;}\n', java: 'import java.util.*;\npublic class Main{public static void main(String[] a){int n=new Scanner(System.in).nextInt();/*fizzbuzz*/}}\n' },
+    starterCode: { javascript: `const rl = require("readline").createInterface({ input: process.stdin });
+
+rl.on("line", l => {
+  const n = parseInt(l);
+  
+  // fizzbuzz
+});
+`, c: `#include<stdio.h>
+int main() {
+    int n;
+    scanf("%d", &n);
+    // Your solution here
+    return 0;
+}
+`, cpp: `#include<iostream>
+using namespace std;
+int main() {
+    int n;
+    cin >> n;
+    // Your solution here
+    return 0;
+}
+`, java: `import java.util.*;
+public class Main{public static void main(String[] args) {
+        int n = new Scanner(System.in).nextInt();
+        // Your solution here
+    }}
+` },
   },
   {
     title: 'Maximum Subarray', slug: 'maximum-subarray', difficulty: 'medium',
@@ -108,7 +243,50 @@ const problems = [
       { input: '1\n1', expectedOutput: '1', isHidden: false },
       { input: '5\n5 4 -1 7 8', expectedOutput: '23', isHidden: true },
     ],
-    starterCode: { javascript: 'const rl=require("readline").createInterface({input:process.stdin});const L=[];rl.on("line",l=>L.push(l));rl.on("close",()=>{\n  const n=parseInt(L[0]);const nums=L[1].split(" ").map(Number);\n  // kadane\n});\n', c: '#include<stdio.h>\nint main(){int n;scanf("%d",&n);int a[n];for(int i=0;i<n;i++)scanf("%d",&a[i]);/*kadane*/return 0;}\n', cpp: '#include<iostream>\n#include<vector>\nusing namespace std;\nint main(){int n;cin>>n;vector<int>a(n);for(int i=0;i<n;i++)cin>>a[i];/*kadane*/return 0;}\n', java: 'import java.util.*;\npublic class Main{public static void main(String[] a){Scanner sc=new Scanner(System.in);int n=sc.nextInt();int[]arr=new int[n];for(int i=0;i<n;i++)arr[i]=sc.nextInt();/*kadane*/}}\n' },
+    starterCode: { javascript: `const rl = require("readline").createInterface({ input: process.stdin });
+const lines = [];
+rl.on("line", l => lines.push(l));
+rl.on("close", () => {
+  
+  const n = parseInt(lines[0]);
+  const nums = lines[1].split(" ").map(Number);
+  
+  // kadane
+});
+`, c: `#include<stdio.h>
+int main() {
+    int n;
+    scanf("%d", &n);
+    int a[n];
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &a[i]);
+    }
+    // Your solution here
+    return 0;
+}
+`, cpp: `#include<iostream>
+#include<vector>
+using namespace std;
+int main() {
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    for (int i = 0; i < n; i++) {
+        cin >> a[i];
+    }
+    // Your solution here
+    return 0;
+}
+`, java: `import java.util.*;
+public class Main{public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[]arr=new int[n];for (int i = 0; i < n; i++) {
+            arr[i] = sc.nextInt();
+        }
+        // Your solution here
+    }}
+` },
   },
   {
     title: 'Valid Parentheses', slug: 'valid-parentheses', difficulty: 'medium',
@@ -121,7 +299,32 @@ const problems = [
       { input: '{[()]}', expectedOutput: 'true', isHidden: true },
       { input: '((()))', expectedOutput: 'true', isHidden: true },
     ],
-    starterCode: { javascript: 'const rl=require("readline").createInterface({input:process.stdin});\nrl.on("line",s=>{\n  // validate parentheses\n});\n', c: '#include<stdio.h>\nint main(){char s[10001];scanf("%s",s);/*validate*/return 0;}\n', cpp: '#include<iostream>\n#include<stack>\nusing namespace std;\nint main(){string s;cin>>s;/*validate*/return 0;}\n', java: 'import java.util.*;\npublic class Main{public static void main(String[] a){String s=new Scanner(System.in).next();/*validate*/}}\n' },
+    starterCode: { javascript: `const rl = require("readline").createInterface({ input: process.stdin });
+
+rl.on("line", s => {
+  
+  // validate parentheses
+});
+`, c: `#include<stdio.h>
+int main() {
+    char s[10001];scanf("%s",s);// Your solution here
+    return 0;
+}
+`, cpp: `#include<iostream>
+#include<stack>
+using namespace std;
+int main() {
+    string s;
+    cin >> s;
+    // Your solution here
+    return 0;
+}
+`, java: `import java.util.*;
+public class Main{public static void main(String[] args) {
+        String s = new Scanner(System.in).next();
+        // Your solution here
+    }}
+` },
   },
   {
     title: 'Binary Search', slug: 'binary-search', difficulty: 'easy',
@@ -133,7 +336,54 @@ const problems = [
       { input: '6\n-1 0 3 5 9 12\n2', expectedOutput: '-1', isHidden: false },
       { input: '1\n5\n5', expectedOutput: '0', isHidden: true },
     ],
-    starterCode: { javascript: 'const rl=require("readline").createInterface({input:process.stdin});const L=[];rl.on("line",l=>L.push(l));rl.on("close",()=>{\n  const nums=L[1].split(" ").map(Number);const t=parseInt(L[2]);\n  // binary search\n});\n', c: '#include<stdio.h>\nint main(){int n;scanf("%d",&n);int a[n];for(int i=0;i<n;i++)scanf("%d",&a[i]);int t;scanf("%d",&t);/*search*/return 0;}\n', cpp: '#include<iostream>\nusing namespace std;\nint main(){int n;cin>>n;int a[n];for(int i=0;i<n;i++)cin>>a[i];int t;cin>>t;/*search*/return 0;}\n', java: 'import java.util.*;\npublic class Main{public static void main(String[] a){Scanner sc=new Scanner(System.in);int n=sc.nextInt();int[]arr=new int[n];for(int i=0;i<n;i++)arr[i]=sc.nextInt();int t=sc.nextInt();/*search*/}}\n' },
+    starterCode: { javascript: `const rl = require("readline").createInterface({ input: process.stdin });
+const lines = [];
+rl.on("line", l => lines.push(l));
+rl.on("close", () => {
+  
+  const nums = lines[1].split(" ").map(Number);
+  const t = parseInt(lines[2]);
+  
+  // binary search
+});
+`, c: `#include<stdio.h>
+int main() {
+    int n;
+    scanf("%d", &n);
+    int a[n];
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &a[i]);
+    }
+    int t;
+    scanf("%d", &t);
+    // Your solution here
+    return 0;
+}
+`, cpp: `#include<iostream>
+using namespace std;
+int main() {
+    int n;
+    cin >> n;
+    int a[n];
+    for (int i = 0; i < n; i++) {
+        cin >> a[i];
+    }
+    int t;
+    cin >> t;
+    // Your solution here
+    return 0;
+}
+`, java: `import java.util.*;
+public class Main{public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[]arr=new int[n];for (int i = 0; i < n; i++) {
+            arr[i] = sc.nextInt();
+        }
+        int t = sc.nextInt();
+        // Your solution here
+    }}
+` },
   },
   {
     title: 'Merge Two Sorted Arrays', slug: 'merge-sorted-arrays', difficulty: 'medium',
@@ -144,7 +394,29 @@ const problems = [
       { input: '3\n1 3 5\n3\n2 4 6', expectedOutput: '1 2 3 4 5 6', isHidden: false },
       { input: '2\n1 2\n1\n3', expectedOutput: '1 2 3', isHidden: true },
     ],
-    starterCode: { javascript: 'const rl=require("readline").createInterface({input:process.stdin});const L=[];rl.on("line",l=>L.push(l));rl.on("close",()=>{\n  // merge\n});\n', c: '#include<stdio.h>\nint main(){/*merge*/return 0;}\n', cpp: '#include<iostream>\nusing namespace std;\nint main(){/*merge*/return 0;}\n', java: 'import java.util.*;\npublic class Main{public static void main(String[] a){/*merge*/}}\n' },
+    starterCode: { javascript: `const rl = require("readline").createInterface({ input: process.stdin });
+const lines = [];
+rl.on("line", l => lines.push(l));
+rl.on("close", () => {
+  
+  // merge
+});
+`, c: `#include<stdio.h>
+int main() {
+    // Your solution here
+    return 0;
+}
+`, cpp: `#include<iostream>
+using namespace std;
+int main() {
+    // Your solution here
+    return 0;
+}
+`, java: `import java.util.*;
+public class Main{public static void main(String[] args) {
+        // Your solution here
+    }}
+` },
   },
   {
     title: 'Linked List Cycle Detection', slug: 'linked-list-cycle', difficulty: 'medium',
@@ -157,7 +429,29 @@ const problems = [
       { input: '3 2\n0 1\n1 2', expectedOutput: 'false', isHidden: false },
       { input: '1 0', expectedOutput: 'false', isHidden: true },
     ],
-    starterCode: { javascript: 'const rl=require("readline").createInterface({input:process.stdin});const L=[];rl.on("line",l=>L.push(l));rl.on("close",()=>{\n  // cycle detection\n});\n', c: '#include<stdio.h>\nint main(){/*cycle detect*/return 0;}\n', cpp: '#include<iostream>\nusing namespace std;\nint main(){/*cycle detect*/return 0;}\n', java: 'import java.util.*;\npublic class Main{public static void main(String[] a){/*cycle detect*/}}\n' },
+    starterCode: { javascript: `const rl = require("readline").createInterface({ input: process.stdin });
+const lines = [];
+rl.on("line", l => lines.push(l));
+rl.on("close", () => {
+  
+  // cycle detection
+});
+`, c: `#include<stdio.h>
+int main() {
+    // Your solution here
+    return 0;
+}
+`, cpp: `#include<iostream>
+using namespace std;
+int main() {
+    // Your solution here
+    return 0;
+}
+`, java: `import java.util.*;
+public class Main{public static void main(String[] args) {
+        // Your solution here
+    }}
+` },
   },
   {
     title: 'Longest Common Subsequence', slug: 'lcs', difficulty: 'hard',
@@ -171,7 +465,37 @@ const problems = [
       { input: 'abc\ndef', expectedOutput: '0', isHidden: true },
       { input: 'abcdef\nacbcf', expectedOutput: '4', isHidden: true },
     ],
-    starterCode: { javascript: 'const rl=require("readline").createInterface({input:process.stdin});const L=[];rl.on("line",l=>L.push(l));rl.on("close",()=>{\n  // LCS\n});\n', c: '#include<stdio.h>\nint main(){char a[1001],b[1001];scanf("%s%s",a,b);/*LCS*/return 0;}\n', cpp: '#include<iostream>\nusing namespace std;\nint main(){string a,b;cin>>a>>b;/*LCS*/return 0;}\n', java: 'import java.util.*;\npublic class Main{public static void main(String[] a){Scanner sc=new Scanner(System.in);String s1=sc.next(),s2=sc.next();/*LCS*/}}\n' },
+    starterCode: { javascript: `const rl = require("readline").createInterface({ input: process.stdin });
+const lines = [];
+rl.on("line", l => lines.push(l));
+rl.on("close", () => {
+  
+  // LCS
+});
+`, c: `#include<stdio.h>
+int main() {
+    char a[1001], b[1001];
+    scanf("%s", a);
+    scanf("%s", b);
+    // Your solution here
+    return 0;
+}
+`, cpp: `#include<iostream>
+using namespace std;
+int main() {
+    string a, b;
+    cin >> a >> b;
+    // Your solution here
+    return 0;
+}
+`, java: `import java.util.*;
+public class Main{public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String s1 = sc.next();
+        String s2 = sc.next();
+        // Your solution here
+    }}
+` },
   },
   {
     title: 'N-Queens', slug: 'n-queens', difficulty: 'hard',
@@ -183,7 +507,34 @@ const problems = [
       { input: '1', expectedOutput: '1', isHidden: false },
       { input: '8', expectedOutput: '92', isHidden: true },
     ],
-    starterCode: { javascript: 'const rl=require("readline").createInterface({input:process.stdin});\nrl.on("line",l=>{\n  const n=parseInt(l);\n  // n-queens\n});\n', c: '#include<stdio.h>\nint main(){int n;scanf("%d",&n);/*n-queens*/return 0;}\n', cpp: '#include<iostream>\nusing namespace std;\nint main(){int n;cin>>n;/*n-queens*/return 0;}\n', java: 'import java.util.*;\npublic class Main{public static void main(String[] a){int n=new Scanner(System.in).nextInt();/*n-queens*/}}\n' },
+    starterCode: { javascript: `const rl = require("readline").createInterface({ input: process.stdin });
+
+rl.on("line", l => {
+  
+  const n=parseInt(l);
+  // n-queens
+});
+`, c: `#include<stdio.h>
+int main() {
+    int n;
+    scanf("%d", &n);
+    // Your solution here
+    return 0;
+}
+`, cpp: `#include<iostream>
+using namespace std;
+int main() {
+    int n;
+    cin >> n;
+    // Your solution here
+    return 0;
+}
+`, java: `import java.util.*;
+public class Main{public static void main(String[] args) {
+        int n = new Scanner(System.in).nextInt();
+        // Your solution here
+    }}
+` },
   },
   {
     title: 'Coin Change', slug: 'coin-change', difficulty: 'hard',
@@ -196,7 +547,29 @@ const problems = [
       { input: '1\n2\n3', expectedOutput: '-1', isHidden: false },
       { input: '1\n1\n0', expectedOutput: '0', isHidden: true },
     ],
-    starterCode: { javascript: 'const rl=require("readline").createInterface({input:process.stdin});const L=[];rl.on("line",l=>L.push(l));rl.on("close",()=>{\n  // coin change\n});\n', c: '#include<stdio.h>\nint main(){/*coin change*/return 0;}\n', cpp: '#include<iostream>\nusing namespace std;\nint main(){/*coin change*/return 0;}\n', java: 'import java.util.*;\npublic class Main{public static void main(String[] a){/*coin change*/}}\n' },
+    starterCode: { javascript: `const rl = require("readline").createInterface({ input: process.stdin });
+const lines = [];
+rl.on("line", l => lines.push(l));
+rl.on("close", () => {
+  
+  // coin change
+});
+`, c: `#include<stdio.h>
+int main() {
+    // Your solution here
+    return 0;
+}
+`, cpp: `#include<iostream>
+using namespace std;
+int main() {
+    // Your solution here
+    return 0;
+}
+`, java: `import java.util.*;
+public class Main{public static void main(String[] args) {
+        // Your solution here
+    }}
+` },
   },
   {
     title: 'Fibonacci Number', slug: 'fibonacci', difficulty: 'easy',
@@ -209,7 +582,34 @@ const problems = [
       { input: '1', expectedOutput: '1', isHidden: true },
       { input: '20', expectedOutput: '6765', isHidden: true },
     ],
-    starterCode: { javascript: 'const rl=require("readline").createInterface({input:process.stdin});\nrl.on("line",l=>{\n  const n=parseInt(l);\n  // fibonacci\n});\n', c: '#include<stdio.h>\nint main(){int n;scanf("%d",&n);/*fib*/return 0;}\n', cpp: '#include<iostream>\nusing namespace std;\nint main(){int n;cin>>n;/*fib*/return 0;}\n', java: 'import java.util.*;\npublic class Main{public static void main(String[] a){int n=new Scanner(System.in).nextInt();/*fib*/}}\n' },
+    starterCode: { javascript: `const rl = require("readline").createInterface({ input: process.stdin });
+
+rl.on("line", l => {
+  
+  const n=parseInt(l);
+  // fibonacci
+});
+`, c: `#include<stdio.h>
+int main() {
+    int n;
+    scanf("%d", &n);
+    // Your solution here
+    return 0;
+}
+`, cpp: `#include<iostream>
+using namespace std;
+int main() {
+    int n;
+    cin >> n;
+    // Your solution here
+    return 0;
+}
+`, java: `import java.util.*;
+public class Main{public static void main(String[] args) {
+        int n = new Scanner(System.in).nextInt();
+        // Your solution here
+    }}
+` },
   },
   {
     title: 'Graph BFS Shortest Path', slug: 'bfs-shortest-path', difficulty: 'hard',
@@ -222,7 +622,30 @@ const problems = [
       { input: '3 1\n0 1', expectedOutput: '-1', isHidden: false },
       { input: '2 1\n0 1', expectedOutput: '1', isHidden: true },
     ],
-    starterCode: { javascript: 'const rl=require("readline").createInterface({input:process.stdin});const L=[];rl.on("line",l=>L.push(l));rl.on("close",()=>{\n  // BFS\n});\n', c: '#include<stdio.h>\nint main(){/*BFS*/return 0;}\n', cpp: '#include<iostream>\n#include<queue>\nusing namespace std;\nint main(){/*BFS*/return 0;}\n', java: 'import java.util.*;\npublic class Main{public static void main(String[] a){/*BFS*/}}\n' },
+    starterCode: { javascript: `const rl = require("readline").createInterface({ input: process.stdin });
+const lines = [];
+rl.on("line", l => lines.push(l));
+rl.on("close", () => {
+  
+  // BFS
+});
+`, c: `#include<stdio.h>
+int main() {
+    // Your solution here
+    return 0;
+}
+`, cpp: `#include<iostream>
+#include<queue>
+using namespace std;
+int main() {
+    // Your solution here
+    return 0;
+}
+`, java: `import java.util.*;
+public class Main{public static void main(String[] args) {
+        // Your solution here
+    }}
+` },
   },
   {
     title: 'Sort an Array', slug: 'sort-array', difficulty: 'medium',
@@ -234,7 +657,49 @@ const problems = [
       { input: '5\n5 2 3 1 4', expectedOutput: '1 2 3 4 5', isHidden: false },
       { input: '3\n3 1 2', expectedOutput: '1 2 3', isHidden: true },
     ],
-    starterCode: { javascript: 'const rl=require("readline").createInterface({input:process.stdin});const L=[];rl.on("line",l=>L.push(l));rl.on("close",()=>{\n  // sort\n});\n', c: '#include<stdio.h>\n#include<stdlib.h>\nint cmp(const void*a,const void*b){return *(int*)a-*(int*)b;}\nint main(){int n;scanf("%d",&n);int a[n];for(int i=0;i<n;i++)scanf("%d",&a[i]);/*sort*/return 0;}\n', cpp: '#include<iostream>\n#include<algorithm>\nusing namespace std;\nint main(){int n;cin>>n;int a[n];for(int i=0;i<n;i++)cin>>a[i];/*sort*/return 0;}\n', java: 'import java.util.*;\npublic class Main{public static void main(String[] a){Scanner sc=new Scanner(System.in);int n=sc.nextInt();int[]arr=new int[n];for(int i=0;i<n;i++)arr[i]=sc.nextInt();/*sort*/}}\n' },
+    starterCode: { javascript: `const rl = require("readline").createInterface({ input: process.stdin });
+const lines = [];
+rl.on("line", l => lines.push(l));
+rl.on("close", () => {
+  
+  // sort
+});
+`, c: `#include<stdio.h>
+#include<stdlib.h>
+int cmp(const void*a,const void*b){return *(int*)a-*(int*)b;}
+int main() {
+    int n;
+    scanf("%d", &n);
+    int a[n];
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &a[i]);
+    }
+    // Your solution here
+    return 0;
+}
+`, cpp: `#include<iostream>
+#include<algorithm>
+using namespace std;
+int main() {
+    int n;
+    cin >> n;
+    int a[n];
+    for (int i = 0; i < n; i++) {
+        cin >> a[i];
+    }
+    // Your solution here
+    return 0;
+}
+`, java: `import java.util.*;
+public class Main{public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[]arr=new int[n];for (int i = 0; i < n; i++) {
+            arr[i] = sc.nextInt();
+        }
+        // Your solution here
+    }}
+` },
   },
 ];
 
