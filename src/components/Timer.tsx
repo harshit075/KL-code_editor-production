@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Clock } from 'lucide-react';
 
 interface TimerProps {
     remainingMs: number;
@@ -46,21 +48,35 @@ export default function Timer({ remainingMs, onTimeUp }: TimerProps) {
     const formatNum = (n: number) => n.toString().padStart(2, '0');
 
     return (
-        <div
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm font-bold transition-all ${isCritical
-                    ? 'bg-red-500/20 text-red-400 timer-critical'
+        <motion.div
+            animate={{
+                scale: isCritical ? [1, 1.05, 1] : 1,
+            }}
+            transition={{
+                repeat: isCritical ? Infinity : 0,
+                duration: 1,
+                ease: 'easeInOut'
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm font-bold transition-colors shadow-sm ${isCritical
+                    ? 'bg-red-50 text-red-600 border border-red-200'
                     : isLow
-                        ? 'bg-amber-500/15 text-amber-400'
-                        : 'bg-slate-100/60 text-slate-700'
+                        ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                        : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200'
                 }`}
         >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>
-                {hours > 0 && `${formatNum(hours)}:`}
-                {formatNum(minutes)}:{formatNum(seconds)}
-            </span>
-        </div>
+            <Clock size={16} className={isCritical ? 'animate-pulse text-red-500' : ''} />
+            <AnimatePresence mode="popLayout">
+                <motion.span
+                    key={`${hours}-${minutes}-${seconds}`}
+                    initial={{ y: -5, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: 5, opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                >
+                    {hours > 0 && <>{formatNum(hours)}<span className="opacity-50">:</span></>}
+                    {formatNum(minutes)}<span className="opacity-50">:</span>{formatNum(seconds)}
+                </motion.span>
+            </AnimatePresence>
+        </motion.div>
     );
 }

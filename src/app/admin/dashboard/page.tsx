@@ -47,26 +47,20 @@ export default function AdminDashboard() {
 
         const fetchData = async () => {
             try {
-                const [testsRes, analyticsRes] = await Promise.all([
-                    fetch('/api/admin/tests', {
-                        headers: { Authorization: `Bearer ${token}` },
-                    }),
-                    fetch('/api/admin/analytics', {
-                        headers: { Authorization: `Bearer ${token}` },
-                    }),
-                ]);
+                // Single combined call — avoids 2 separate cold starts on Vercel
+                const res = await fetch('/api/admin/dashboard', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
 
-                if (testsRes.status === 401 || analyticsRes.status === 401) {
+                if (res.status === 401) {
                     localStorage.removeItem('adminToken');
                     router.push('/admin/login');
                     return;
                 }
 
-                const testsData = await testsRes.json();
-                const analyticsData = await analyticsRes.json();
-
-                setTests(testsData.tests || []);
-                setAnalytics(analyticsData.analytics || null);
+                const data = await res.json();
+                setTests(data.tests || []);
+                setAnalytics(data.analytics || null);
             } catch (err) {
                 console.error('Dashboard fetch error:', err);
             } finally {
@@ -76,6 +70,7 @@ export default function AdminDashboard() {
 
         fetchData();
     }, [router]);
+
 
     const copyLink = (slug: string) => {
         const link = `${window.location.origin}/test/${slug}`;

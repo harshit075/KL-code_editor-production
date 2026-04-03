@@ -14,10 +14,12 @@ export async function GET(request: NextRequest) {
 
         await dbConnect();
 
-        const totalTests = await Test.countDocuments({ createdBy: admin.adminId });
-        const testIds = await Test.find({ createdBy: admin.adminId }).select('_id');
-        const testIdList = testIds.map((t) => t._id);
+        // Fetch test IDs first (needed for subsequent queries)
+        const testIdDocs = await Test.find({ createdBy: admin.adminId }, '_id').lean();
+        const testIdList = testIdDocs.map(t => (t as any)._id);
+        const totalTests = testIdList.length;
 
+        // Run all remaining queries in parallel — single round-trip
         const [totalCandidates, completedCandidates, candidates, totalSubmissions] = await Promise.all([
             Candidate.countDocuments({ testId: { $in: testIdList } }),
             Candidate.countDocuments({
@@ -27,15 +29,17 @@ export async function GET(request: NextRequest) {
             Candidate.find({
                 testId: { $in: testIdList },
                 status: { $in: ['completed', 'timed-out'] },
-            }).select('score totalScore'),
-            Submission.countDocuments({ testId: { $in: testIdList } })
+            })
+                .select('score totalScore')
+                .lean(),
+            Submission.countDocuments({ testId: { $in: testIdList } }),
         ]);
 
         const averageScore =
             candidates.length > 0
                 ? Math.round(
                     candidates.reduce(
-                        (sum, c) => sum + (c.totalScore > 0 ? (c.score / c.totalScore) * 100 : 0),
+                        (sum, c) => sum + ((c as any).totalScore > 0 ? ((c as any).score / (c as any).totalScore) * 100 : 0),
                         0
                     ) / candidates.length
                 )
@@ -59,3 +63,4 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
+
