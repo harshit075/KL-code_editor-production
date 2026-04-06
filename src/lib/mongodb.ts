@@ -1,5 +1,15 @@
 import mongoose from 'mongoose';
 
+// ── Pre-register all models so populate() never throws MissingSchemaError ──
+// Next.js serverless routes each import only what they need, so a model
+// referenced via populate() may not be in scope. Importing everything here
+// ensures every schema is registered as soon as dbConnect() is first called.
+import '@/lib/models/Problem';
+import '@/lib/models/Test';
+import '@/lib/models/Candidate';
+import '@/lib/models/Submission';
+import '@/lib/models/Admin';
+
 const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {
@@ -28,21 +38,15 @@ async function dbConnect(): Promise<typeof mongoose> {
             bufferCommands: false,
 
             // ── Connection pool (key for Vercel cold-start perf) ──────────
-            // Keep a small pool alive between lambda invocations on warm containers
             maxPoolSize: 10,
             minPoolSize: 1,
 
             // ── Timeouts ────────────────────────────────────────────────────
-            // How long the driver waits to find a suitable server (ms)
             serverSelectionTimeoutMS: 10_000,
-            // How long a socket stays inactive before being closed
             socketTimeoutMS: 45_000,
-            // Initial connection timeout
             connectTimeoutMS: 10_000,
-            // Close idle connections faster than default (avoid Vercel hanging)
             maxIdleTimeMS: 60_000,
         }).catch((err) => {
-            // Reset so the next call retries rather than awaiting a failed promise
             cached.promise = null;
             throw err;
         });
@@ -53,4 +57,3 @@ async function dbConnect(): Promise<typeof mongoose> {
 }
 
 export default dbConnect;
-

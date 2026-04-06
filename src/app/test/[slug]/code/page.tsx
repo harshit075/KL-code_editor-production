@@ -61,6 +61,16 @@ export default function CodingEnvironment() {
   const currentProblem = problems[currentProblemIndex];
   const currentCode = currentProblem ? (codes[currentProblem._id]?.[language] || '') : '';
 
+  // Auto-fill sample input when switching problems
+  useEffect(() => {
+    if (currentProblem) {
+      setInput(currentProblem.sampleInput || '');
+      setOutput('');
+      setStderr('');
+      setTestResults(null);
+    }
+  }, [currentProblemIndex, currentProblem?.sampleInput]);
+
   // Load test data
   useEffect(() => {
     const loadTest = async () => {
@@ -160,7 +170,7 @@ export default function CodingEnvironment() {
     }));
   }, [currentProblem, language]);
 
-  const handleRun = async () => {
+  const runWithInput = async (inputOverride?: string) => {
     if (!currentProblem) return;
     setIsRunning(true);
     setOutput('');
@@ -174,7 +184,7 @@ export default function CodingEnvironment() {
         body: JSON.stringify({
           code: currentCode,
           language,
-          input: input || currentProblem.sampleInput,
+          input: inputOverride !== undefined ? inputOverride : input,
           problemId: currentProblem._id,
         }),
       });
@@ -188,6 +198,8 @@ export default function CodingEnvironment() {
       setIsRunning(false);
     }
   };
+
+  const handleRun = () => runWithInput();
 
   const handleSubmitProblem = async () => {
     if (!currentProblem || !candidateId) return;
@@ -254,6 +266,14 @@ export default function CodingEnvironment() {
       setIsEndingTest(false); // re-enable button on failure
     }
   }, [candidateId, problems, codes, language, testId, isEndingTest]);
+
+  const handleRunSample = useCallback(() => {
+    if (!currentProblem) return;
+    const sample = currentProblem.sampleInput || '';
+    setInput(sample);
+    runWithInput(sample);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentProblem]);
 
   const handleTabViolation = useCallback((_type: string, count: number) => {
     setTabSwitchCount(count);
@@ -472,6 +492,8 @@ export default function CodingEnvironment() {
             currentIndex={currentProblemIndex}
             totalProblems={problems.length}
             onNavigate={setCurrentProblemIndex}
+            onLoadSample={() => setInput(currentProblem.sampleInput || '')}
+            onRunSample={handleRunSample}
           />
         </div>
 
@@ -489,23 +511,24 @@ export default function CodingEnvironment() {
           </div>
 
           {/* Action bar */}
-          <div className="flex items-center justify-between px-4 py-2 bg-white/80 border-t border-b border-slate-300/50 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] relative z-10">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between px-4 py-2.5 bg-white/90 border-t border-b border-slate-200 shrink-0 shadow-[0_-2px_8px_rgba(0,0,0,0.06)] relative z-10">
+            <div className="flex items-center gap-2">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleRun}
                 disabled={isRunning}
-                className="btn-secondary text-sm py-2 px-5 flex items-center gap-2 font-medium transition-all"
+                className="btn-secondary text-sm py-2 px-4 flex items-center gap-2 font-medium transition-all"
+                title="Run your code with custom input (stdin)"
               >
                 {isRunning ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-gray-400/30 border-t-gray-500 rounded-full animate-spin" />
+                    <div className="w-3.5 h-3.5 border-2 border-gray-400/30 border-t-gray-500 rounded-full animate-spin" />
                     Running...
                   </>
                 ) : (
                   <>
-                    <Play size={16} className="text-slate-700" />
+                    <Play size={14} className="text-slate-700" />
                     Run Code
                   </>
                 )}
@@ -515,20 +538,26 @@ export default function CodingEnvironment() {
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSubmitProblem}
                 disabled={submitting || isRunning}
-                className="btn-success text-sm py-2 px-5 flex items-center gap-2 font-medium transition-all shadow-emerald-500/20 shadow-lg"
+                className="btn-success text-sm py-2 px-4 flex items-center gap-2 font-medium transition-all shadow-emerald-500/20 shadow-lg"
+                title="Submit and run against all hidden test cases"
               >
                 {submitting ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Submitting...
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Checking...
                   </>
                 ) : (
                   <>
-                    <Check size={16} />
-                    Submit
+                    <Check size={14} />
+                    Submit & Test
                   </>
                 )}
               </motion.button>
+              {/* Hint */}
+              <span className="hidden md:block text-xs text-slate-400 border-l border-slate-200 pl-3 ml-1">
+                <span className="font-medium text-slate-500">Run</span> = test with your input ·{' '}
+                <span className="font-medium text-slate-500">Submit</span> = check all test cases
+              </span>
             </div>
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">
               <span>Problem {currentProblemIndex + 1}</span>
@@ -568,28 +597,41 @@ export default function CodingEnvironment() {
 
           {/* Test results */}
           {testResults && (
-            <div className="px-4 py-3 bg-white/60 border-b border-slate-300/50 shrink-0">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm font-medium text-slate-700">Test Cases:</span>
-                <span className="text-sm text-emerald-400">
-                  {testResults.filter(r => r.passed).length}/{testResults.length} passed
+            <div className="px-4 py-3 bg-white border-b border-slate-200 shrink-0">
+              {/* Summary row */}
+              <div className="flex items-center gap-3 mb-2">
+                <span className={`text-sm font-bold ${
+                  testResults.filter(r => r.passed).length === testResults.length
+                    ? 'text-emerald-600' : 'text-red-500'
+                }`}>
+                  {testResults.filter(r => r.passed).length === testResults.length ? '✓ All Passed' : '✗ Some Failed'}
+                </span>
+                <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                  {testResults.filter(r => r.passed).length}/{testResults.length} test cases passed
                 </span>
               </div>
-              <div className="flex gap-2 flex-wrap">
+              {/* Per-case pills */}
+              <div className="flex gap-1.5 flex-wrap">
                 {testResults.map((r) => (
                   <div
                     key={r.testCase}
-                    className={`text-xs px-3 py-1.5 rounded-lg font-medium ${
+                    title={!r.isHidden && !r.passed && r.expected ? `Expected: ${r.expected}\nGot: ${r.actual}` : ''}
+                    className={`group relative text-xs px-2.5 py-1 rounded-lg font-semibold cursor-default ${
                       r.passed
-                        ? 'bg-emerald-500/15 text-emerald-400'
-                        : 'bg-red-500/15 text-red-400'
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        : 'bg-red-50 text-red-600 border border-red-200'
                     }`}
                   >
-                    {r.isHidden ? `Hidden #${r.testCase}` : `Case #${r.testCase}`}: {r.passed ? '✓ Pass' : '✗ Fail'}
+                    {r.isHidden ? `🔒 Hidden #${r.testCase}` : `#${r.testCase}`}{' '}
+                    {r.passed ? '✓' : '✗'}
+                    {/* Tooltip for failed visible cases */}
                     {!r.isHidden && !r.passed && r.expected && (
-                      <span className="ml-2 text-slate-500">
-                        (expected: {r.expected.substring(0, 30)})
-                      </span>
+                      <div className="absolute left-0 top-full mt-1 z-20 hidden group-hover:flex flex-col gap-1 bg-slate-900 text-white text-xs px-3 py-2 rounded-lg shadow-xl min-w-max max-w-xs">
+                        <span className="text-slate-400">Expected:</span>
+                        <code className="text-emerald-300 font-mono">{r.expected.substring(0, 60)}</code>
+                        <span className="text-slate-400 mt-1">Got:</span>
+                        <code className="text-red-300 font-mono">{(r.actual || '(empty)').substring(0, 60)}</code>
+                      </div>
                     )}
                   </div>
                 ))}
@@ -598,15 +640,15 @@ export default function CodingEnvironment() {
           )}
 
           {/* I/O Console */}
-          <div className="h-44 min-h-[120px] shrink-0">
-            <IOConsole
-              input={input}
-              output={output}
-              stderr={stderr}
-              isRunning={isRunning}
-              onInputChange={setInput}
-            />
-          </div>
+          <IOConsole
+            input={input}
+            output={output}
+            stderr={stderr}
+            isRunning={isRunning}
+            onInputChange={setInput}
+            sampleInput={currentProblem?.sampleInput}
+            onRun={handleRun}
+          />
         </div>
       </div>
     </div>

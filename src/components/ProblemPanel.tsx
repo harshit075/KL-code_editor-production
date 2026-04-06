@@ -17,9 +17,11 @@ interface ProblemPanelProps {
     currentIndex: number;
     totalProblems: number;
     onNavigate: (index: number) => void;
+    onLoadSample?: () => void;
+    onRunSample?: () => void;
 }
 
-export default function ProblemPanel({ problem, currentIndex, totalProblems, onNavigate }: ProblemPanelProps) {
+export default function ProblemPanel({ problem, currentIndex, totalProblems, onNavigate, onLoadSample, onRunSample }: ProblemPanelProps) {
     const difficultyClass = {
         easy: 'badge-easy',
         medium: 'badge-medium',
@@ -109,10 +111,32 @@ export default function ProblemPanel({ problem, currentIndex, totalProblems, onN
                                 transition={{ delay: 0.3 }}
                                 className="group"
                             >
-                                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-indigo-400 transition-colors"></span>
-                                    Sample Input
-                                </h3>
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-indigo-400 transition-colors"></span>
+                                        Sample Input
+                                    </h3>
+                                    {(onLoadSample || onRunSample) && (
+                                        <div className="flex items-center gap-1.5">
+                                            {onLoadSample && (
+                                                <button
+                                                    onClick={onLoadSample}
+                                                    className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2 py-0.5 rounded-md transition-all"
+                                                >
+                                                    ↺ Load
+                                                </button>
+                                            )}
+                                            {onRunSample && (
+                                                <button
+                                                    onClick={onRunSample}
+                                                    className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md transition-all flex items-center gap-1"
+                                                >
+                                                    ▶ Try Sample
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                                 <pre className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm text-emerald-400 font-mono overflow-x-auto shadow-inner leading-relaxed">
                                     {problem.sampleInput}
                                 </pre>
@@ -125,12 +149,24 @@ export default function ProblemPanel({ problem, currentIndex, totalProblems, onN
                             >
                                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2">
                                     <span className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-indigo-400 transition-colors"></span>
-                                    Sample Output
+                                    Expected Output
                                 </h3>
                                 <pre className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm text-emerald-400 font-mono overflow-x-auto shadow-inner leading-relaxed">
                                     {problem.sampleOutput}
                                 </pre>
                             </motion.div>
+
+                            {/* How it works hint */}
+                            {onRunSample && (
+                                <div className="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5 text-xs text-blue-700">
+                                    <span className="shrink-0 mt-0.5">💡</span>
+                                    <span>
+                                        Click <strong>▶ Try Sample</strong> to auto-load this input and run your code,
+                                        or type custom values in the console below and click <strong>Run Code</strong>.
+                                        Use <strong>Submit &amp; Test</strong> to check all hidden test cases.
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </motion.div>
                 </AnimatePresence>

@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import Test from '@/lib/models/Test';
 import Candidate from '@/lib/models/Candidate';
 import Submission from '@/lib/models/Submission';
+import '@/lib/models/Problem'; // registers Problem schema so Test.populate('problems') works
 import { authenticateAdmin } from '@/lib/auth';
 
 /**

@@ -119,35 +119,33 @@ async function runTestCases(
     language: string,
     testCases: { input: string; expectedOutput: string; isHidden: boolean }[]
 ): Promise<TestCaseResult[]> {
-    const results: TestCaseResult[] = [];
     const normalize = (str: string) => str.replace(/\r\n/g, '\n').trim();
 
-    for (const tc of testCases) {
-        try {
-            const output = await executeCode(code, language, tc.input);
-            const actual = normalize(output);
-            const expected = normalize(tc.expectedOutput);
-            results.push({
-                passed: actual === expected,
-                expected,
-                actual,
-            });
-        } catch (error: any) {
-            results.push({
-                passed: false,
-                expected: normalize(tc.expectedOutput),
-                actual: error.message || 'Runtime Error',
-            });
-        }
-    }
+    // Run all test cases in parallel for speed & reliability
+    const settled = await Promise.allSettled(
+        testCases.map((tc) => executeCode(code, language, tc.input))
+    );
 
-    return results;
+    return settled.map((result, i) => {
+        const expected = normalize(testCases[i].expectedOutput);
+        if (result.status === 'fulfilled') {
+            const actual = normalize(result.value);
+            return { passed: actual === expected, expected, actual };
+        } else {
+            return {
+                passed: false,
+                expected,
+                actual: (result.reason as Error)?.message || 'Runtime Error',
+            };
+        }
+    });
 }
 
 async function executeCode(
     code: string,
     language: string,
-    input: string
+    input: string,
+    retries = 1
 ): Promise<string> {
     const langMap: Record<string, number> = {
         c: 50,
@@ -162,47 +160,62 @@ async function executeCode(
 
     const judge0Url = process.env.JUDGE0_API_URL || 'https://judge0-ce.p.rapidapi.com';
     const apiKey = process.env.RAPIDAPI_KEY || '';
-    
+
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
     };
-    
+
     if (judge0Url.includes('rapidapi.com')) {
         headers['X-RapidAPI-Key'] = apiKey;
         headers['X-RapidAPI-Host'] = 'judge0-ce.p.rapidapi.com';
     }
 
-    const response = await fetch(`${judge0Url}/submissions?base64_encoded=true&wait=true`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-            source_code: Buffer.from(code).toString('base64'),
-            language_id: langId,
-            stdin: input ? Buffer.from(input).toString('base64') : '',
-        }),
-    });
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        let response: Response;
+        try {
+            response = await fetch(`${judge0Url}/submissions?base64_encoded=true&wait=true`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    source_code: Buffer.from(code).toString('base64'),
+                    language_id: langId,
+                    stdin: input ? Buffer.from(input).toString('base64') : '',
+                }),
+                signal: AbortSignal.timeout(15000), // 15s per call
+            });
+        } catch {
+            if (attempt < retries) {
+                await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
+                continue;
+            }
+            throw new Error('Code execution service unavailable');
+        }
 
-    if (!response.ok) {
-        throw new Error('Code execution failed (Service unavailable or invalid API key)');
+        if (!response.ok) {
+            if (attempt < retries) {
+                await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
+                continue;
+            }
+            throw new Error('Code execution failed (service error)');
+        }
+
+        const result = await response.json();
+
+        const decodeBase64 = (b64: string | null | undefined) =>
+            b64 ? Buffer.from(b64, 'base64').toString('utf-8') : '';
+
+        const stdout = decodeBase64(result.stdout);
+        const stderr = decodeBase64(result.stderr);
+        const compile_output = decodeBase64(result.compile_output);
+        const message = decodeBase64(result.message);
+
+        if (result.status?.id === 6) throw new Error(compile_output || 'Compilation failed');
+        if (result.status?.id !== 3) {
+            throw new Error(stderr || message || result.status?.description || 'Execution error');
+        }
+
+        return stdout || '';
     }
 
-    const result = await response.json();
-
-    const decodeBase64 = (base64Str: string | null | undefined) => {
-        if (!base64Str) return '';
-        return Buffer.from(base64Str, 'base64').toString('utf-8');
-    };
-
-    const stdout = decodeBase64(result.stdout);
-    const stderr = decodeBase64(result.stderr);
-    const compile_output = decodeBase64(result.compile_output);
-    const message = decodeBase64(result.message);
-
-    if (result.status?.id === 6) { throw new Error(compile_output || 'Compilation failed'); }
-    if (result.status?.id !== 3) {
-        // Status ID 3 is "Accepted". Any other status means error (runtime error, time limit, memory limit, etc)
-        throw new Error(stderr || message || result.status?.description || 'Execution error');
-    }
-
-    return stdout || '';
+    throw new Error('Execution failed after retries');
 }
