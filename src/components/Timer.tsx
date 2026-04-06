@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock } from 'lucide-react';
 
@@ -13,20 +13,22 @@ export default function Timer({ remainingMs, onTimeUp }: TimerProps) {
     const [timeLeft, setTimeLeft] = useState(Math.max(0, Math.floor(remainingMs / 1000)));
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const calledRef = useRef(false);
-
-    const handleTimeUp = useCallback(() => {
-        if (!calledRef.current) {
-            calledRef.current = true;
-            onTimeUp();
-        }
+    // Store onTimeUp in a ref so the interval never restarts when the parent re-renders
+    const onTimeUpRef = useRef(onTimeUp);
+    useEffect(() => {
+        onTimeUpRef.current = onTimeUp;
     }, [onTimeUp]);
 
+    // Run the interval ONCE on mount — never restarts due to parent re-renders
     useEffect(() => {
         intervalRef.current = setInterval(() => {
             setTimeLeft((prev) => {
                 if (prev <= 1) {
                     if (intervalRef.current) clearInterval(intervalRef.current);
-                    handleTimeUp();
+                    if (!calledRef.current) {
+                        calledRef.current = true;
+                        onTimeUpRef.current();
+                    }
                     return 0;
                 }
                 return prev - 1;
@@ -36,7 +38,8 @@ export default function Timer({ remainingMs, onTimeUp }: TimerProps) {
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [handleTimeUp]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // ← empty deps: interval starts once and never restarts
 
     const hours = Math.floor(timeLeft / 3600);
     const minutes = Math.floor((timeLeft % 3600) / 60);

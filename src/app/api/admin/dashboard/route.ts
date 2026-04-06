@@ -19,11 +19,21 @@ export async function GET(request: NextRequest) {
 
         await dbConnect();
 
-        // ── Step 1: Fetch tests (one query) ───────────────────────────────
-        const tests = await Test.find({ createdBy: admin.adminId })
+        // ── Step 1: Fetch tests ──────────────────────────────────────────
+        // First try tests owned by this admin; if none, fall back to ALL tests
+        // (handles case where admin account was recreated but old tests remain)
+        let tests = await Test.find({ createdBy: admin.adminId })
             .populate('problems', 'title difficulty')
             .sort({ createdAt: -1 })
-            .lean();  // .lean() returns plain JS objects — faster than Mongoose docs
+            .lean();
+
+        if (tests.length === 0) {
+            // Fallback: show all tests in the system (single-tenant setup)
+            tests = await Test.find({})
+                .populate('problems', 'title difficulty')
+                .sort({ createdAt: -1 })
+                .lean();
+        }
 
         const testIds = tests.map(t => (t._id as any));
 

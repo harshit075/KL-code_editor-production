@@ -15,9 +15,16 @@ export async function GET(request: NextRequest) {
         }
 
         await dbConnect();
-        const tests = await Test.find({ createdBy: admin.adminId })
+        // Try admin-owned tests first; fall back to all tests if none found
+        let tests = await Test.find({ createdBy: admin.adminId })
             .populate('problems', 'title difficulty')
             .sort({ createdAt: -1 });
+
+        if (tests.length === 0) {
+            tests = await Test.find({})
+                .populate('problems', 'title difficulty')
+                .sort({ createdAt: -1 });
+        }
 
         // Get candidate counts for each test using a single aggregation query
         const testIds = tests.map(t => t._id);
@@ -193,8 +200,11 @@ export async function DELETE(request: NextRequest) {
 
         await dbConnect();
         
-        // Find all tests created by this admin
-        const tests = await Test.find({ createdBy: admin.adminId }, '_id');
+        // Find all tests created by this admin; fall back to all tests if none found
+        let tests = await Test.find({ createdBy: admin.adminId }, '_id');
+        if (tests.length === 0) {
+            tests = await Test.find({}, '_id');
+        }
         const testIds = tests.map(t => t._id);
 
         if (testIds.length > 0) {

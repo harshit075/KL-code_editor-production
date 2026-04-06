@@ -54,6 +54,7 @@ export default function CodingEnvironment() {
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
   const [cameraViolationCount, setCameraViolationCount] = useState(0);
   const [cameraWarningMsg, setCameraWarningMsg] = useState('');
+  const [noFaceWarningLog, setNoFaceWarningLog] = useState<string[]>([]);
   const [isEndingTest, setIsEndingTest] = useState(false);
   const autosaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -262,19 +263,30 @@ export default function CodingEnvironment() {
   }, [handleFinalSubmit]);
 
   const handleCameraViolation = useCallback((type: 'no-face' | 'multiple-faces', count: number) => {
-    const msg = type === 'no-face'
-      ? 'No face detected — please stay in front of your camera.'
-      : 'Multiple faces detected — outside assistance is not allowed.';
-    setCameraViolationCount(count);
-    setCameraWarningMsg(msg);
     // Report to server
     fetch('/api/candidates/tab-switch', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ candidateId, reason: type }),
     }).catch(() => {});
-    if (count >= 3) {
-      handleFinalSubmit();
+
+    if (type === 'no-face') {
+      // No-face: log a warning, never auto-submit
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      setNoFaceWarningLog((prev) => [
+        ...prev,
+        `[${now}] No face detected (occurrence #${count})`,
+      ]);
+      setCameraWarningMsg('No face detected — please stay in front of your camera.');
+      setCameraViolationCount(count); // still update so the camera widget shows dots
+    } else {
+      // Multiple faces: treat as a serious violation, auto-submit at 3
+      const msg = 'Multiple faces detected — outside assistance is not allowed.';
+      setCameraViolationCount(count);
+      setCameraWarningMsg(msg);
+      if (count >= 3) {
+        handleFinalSubmit();
+      }
     }
   }, [candidateId, handleFinalSubmit]);
 
@@ -382,21 +394,41 @@ export default function CodingEnvironment() {
           </div>
         </div>
       )}
-      {cameraViolationCount > 0 && cameraViolationCount < 3 && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-red-600 text-white px-6 py-3 rounded-xl shadow-2xl border border-red-400/50 animate-bounce">
+      {/* No-face: transient alert banner (fades after a moment via camera widget; here just for extra visibility) */}
+      {noFaceWarningLog.length > 0 && noFaceWarningLog.length < 3 && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-amber-600 text-white px-6 py-3 rounded-xl shadow-2xl border border-amber-400/50 animate-bounce">
           <span className="text-xl">🎥</span>
           <div>
-            <div className="font-bold text-sm">Camera Alert! ({cameraViolationCount}/3)</div>
-            <div className="text-xs text-red-200">{cameraWarningMsg}</div>
+            <div className="font-bold text-sm">No Face Detected! ({noFaceWarningLog.length}/3)</div>
+            <div className="text-xs text-amber-200">Please stay in front of your camera during the test.</div>
           </div>
         </div>
       )}
-      {cameraViolationCount >= 3 && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-red-700 text-white px-6 py-3 rounded-xl shadow-2xl border border-red-500/50">
+      {noFaceWarningLog.length >= 3 && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-red-700 text-white px-6 py-3 rounded-xl shadow-2xl border border-red-500/50 animate-pulse">
           <span className="text-xl">🚨</span>
           <div>
-            <div className="font-bold text-sm">Auto-Submitting — Camera Violations</div>
-            <div className="text-xs text-red-200">3 camera violations detected. Your solution is being submitted.</div>
+            <div className="font-bold text-sm">No Face Detected {noFaceWarningLog.length} Times!</div>
+            <div className="text-xs text-red-200">This has been flagged. See the warning log on your submission.</div>
+          </div>
+        </div>
+      )}
+      {/* Multiple-faces violations */}
+      {cameraWarningMsg.includes('Multiple') && cameraViolationCount > 0 && cameraViolationCount < 3 && (
+        <div className="fixed top-32 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-red-600 text-white px-6 py-3 rounded-xl shadow-2xl border border-red-400/50 animate-bounce">
+          <span className="text-xl">👥</span>
+          <div>
+            <div className="font-bold text-sm">Multiple Faces Detected! ({cameraViolationCount}/3)</div>
+            <div className="text-xs text-red-200">Outside assistance is not allowed.</div>
+          </div>
+        </div>
+      )}
+      {cameraWarningMsg.includes('Multiple') && cameraViolationCount >= 3 && (
+        <div className="fixed top-32 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-red-700 text-white px-6 py-3 rounded-xl shadow-2xl border border-red-500/50">
+          <span className="text-xl">🚨</span>
+          <div>
+            <div className="font-bold text-sm">Auto-Submitting — Multiple Faces Detected</div>
+            <div className="text-xs text-red-200">3 violations detected. Your solution is being submitted.</div>
           </div>
         </div>
       )}
@@ -504,6 +536,35 @@ export default function CodingEnvironment() {
               <span>{problems.length}</span>
             </div>
           </div>
+
+          {/* No-face violation warning log — shown above test results permanently */}
+          {noFaceWarningLog.length > 0 && (
+            <div className="px-4 py-3 bg-amber-50 border-b border-amber-200 shrink-0">
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-amber-600 text-base">⚠️</span>
+                <span className="text-sm font-semibold text-amber-800">
+                  No Face Detected — {noFaceWarningLog.length} {noFaceWarningLog.length === 1 ? 'Occurrence' : 'Occurrences'}
+                </span>
+                {noFaceWarningLog.length >= 3 && (
+                  <span className="ml-auto text-xs font-bold bg-red-500 text-white px-2 py-0.5 rounded-full animate-pulse">
+                    Flagged
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                {noFaceWarningLog.map((entry, i) => (
+                  <div key={i} className="text-xs text-amber-700 bg-amber-100 px-3 py-1 rounded-lg font-mono">
+                    {entry}
+                  </div>
+                ))}
+              </div>
+              {noFaceWarningLog.length >= 3 && (
+                <div className="mt-2 text-xs text-red-600 font-semibold">
+                  🚨 Your absence from camera has been recorded {noFaceWarningLog.length} times and will be reported to the administrator.
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Test results */}
           {testResults && (
