@@ -108,7 +108,7 @@ export default function AdminDashboard() {
 
             if (res.ok) {
                 setTests(tests.filter(t => t._id !== testId));
-                setAnalytics(prev => prev ? { ...prev, totalTests: prev.totalTests - 1 } : null);
+                setAnalytics(prev => ({ ...prev, totalTests: prev.totalTests - 1 }));
             } else {
                 alert('Failed to delete test.');
             }
@@ -134,7 +134,7 @@ export default function AdminDashboard() {
 
             if (res.ok) {
                 setTests([]);
-                setAnalytics(prev => prev ? { ...prev, totalTests: 0, totalCandidates: 0, completedCandidates: 0, totalSubmissions: 0 } : null);
+                setAnalytics(prev => ({ ...prev, totalTests: 0, totalCandidates: 0, completedCandidates: 0, completionRate: 0, averageScore: 0, highestScore: 0, totalSubmissions: 0 }));
             } else {
                 alert('Failed to delete all tests.');
             }
