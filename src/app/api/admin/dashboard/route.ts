@@ -6,9 +6,8 @@ import Submission from '@/lib/models/Submission';
 import { authenticateAdmin } from '@/lib/auth';
 
 /**
- * Combined dashboard endpoint — returns both tests list AND analytics in a
- * single request, so the client only needs one network round-trip.
- * This is the main fix for slow Vercel cold-start times.
+ * Combined dashboard endpoint — returns tests list AND analytics in one request.
+ * Single-tenant: shows ALL tests regardless of which admin account created them.
  */
 export async function GET(request: NextRequest) {
     try {
@@ -19,25 +18,15 @@ export async function GET(request: NextRequest) {
 
         await dbConnect();
 
-        // ── Step 1: Fetch tests ──────────────────────────────────────────
-        // First try tests owned by this admin; if none, fall back to ALL tests
-        // (handles case where admin account was recreated but old tests remain)
-        let tests = await Test.find({ createdBy: admin.adminId })
+        // ── Step 1: Fetch ALL tests (single-tenant — one admin system) ───────
+        const tests = await Test.find({})
             .populate('problems', 'title difficulty')
             .sort({ createdAt: -1 })
             .lean();
 
-        if (tests.length === 0) {
-            // Fallback: show all tests in the system (single-tenant setup)
-            tests = await Test.find({})
-                .populate('problems', 'title difficulty')
-                .sort({ createdAt: -1 })
-                .lean();
-        }
-
         const testIds = tests.map(t => (t._id as any));
 
-        // ── Step 2: Run all aggregations in parallel (single DB round-trip per query) ──
+        // ── Step 2: Run all aggregations in parallel ──────────────────────────
         const [candidateStats, completedCandidates, scoredCandidates, totalSubmissions] = await Promise.all([
             // Count + completion breakdown per test (for the tests table)
             Candidate.aggregate([
@@ -61,7 +50,7 @@ export async function GET(request: NextRequest) {
                 status: { $in: ['completed', 'timed-out'] },
             }),
 
-            // Completed candidates with scores (for avg score)
+            // Completed candidates with scores (for avg + highest score)
             Candidate.find({
                 testId: { $in: testIds },
                 status: { $in: ['completed', 'timed-out'] },
@@ -73,7 +62,7 @@ export async function GET(request: NextRequest) {
             Submission.countDocuments({ testId: { $in: testIds } }),
         ]);
 
-        // ── Step 3: Assemble tests with per-test stats ────────────────────
+        // ── Step 3: Assemble tests with per-test stats ────────────────────────
         const statsMap = candidateStats.reduce((acc, s) => {
             acc[s._id.toString()] = s;
             return acc;
@@ -84,17 +73,20 @@ export async function GET(request: NextRequest) {
             return { ...test, candidateCount: stat.candidateCount, completedCount: stat.completedCount };
         });
 
-        // ── Step 4: Assemble analytics ────────────────────────────────────
+        // ── Step 4: Assemble analytics ────────────────────────────────────────
         const totalCandidates = candidateStats.reduce((sum, s) => sum + s.candidateCount, 0);
-        const averageScore =
-            scoredCandidates.length > 0
-                ? Math.round(
-                      scoredCandidates.reduce(
-                          (sum, c) => sum + ((c as any).totalScore > 0 ? ((c as any).score / (c as any).totalScore) * 100 : 0),
-                          0
-                      ) / scoredCandidates.length
-                  )
-                : 0;
+
+        const scores = scoredCandidates.map(c =>
+            (c as any).totalScore > 0 ? Math.round(((c as any).score / (c as any).totalScore) * 100) : 0
+        );
+
+        const averageScore = scores.length > 0
+            ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+            : 0;
+
+        const highestScore = scores.length > 0
+            ? Math.max(...scores)
+            : 0;
 
         const analytics = {
             totalTests: tests.length,
@@ -102,18 +94,11 @@ export async function GET(request: NextRequest) {
             completedCandidates,
             completionRate: totalCandidates > 0 ? Math.round((completedCandidates / totalCandidates) * 100) : 0,
             averageScore,
+            highestScore,
             totalSubmissions,
         };
 
-        return NextResponse.json(
-            { tests: testsWithStats, analytics },
-            {
-                headers: {
-                    // Let browsers / Vercel Edge cache for 15 s, then revalidate in background
-                    'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=60',
-                },
-            }
-        );
+        return NextResponse.json({ tests: testsWithStats, analytics });
     } catch (error: unknown) {
         console.error('Dashboard fetch error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

@@ -14,8 +14,8 @@ export async function GET(request: NextRequest) {
 
         await dbConnect();
 
-        // Fetch test IDs first (needed for subsequent queries)
-        const testIdDocs = await Test.find({ createdBy: admin.adminId }, '_id').lean();
+        // Single-tenant: fetch ALL test IDs (no createdBy filter)
+        const testIdDocs = await Test.find({}, '_id').lean();
         const testIdList = testIdDocs.map(t => (t as any)._id);
         const totalTests = testIdList.length;
 
@@ -35,26 +35,26 @@ export async function GET(request: NextRequest) {
             Submission.countDocuments({ testId: { $in: testIdList } }),
         ]);
 
-        const averageScore =
-            candidates.length > 0
-                ? Math.round(
-                    candidates.reduce(
-                        (sum, c) => sum + ((c as any).totalScore > 0 ? ((c as any).score / (c as any).totalScore) * 100 : 0),
-                        0
-                    ) / candidates.length
-                )
-                : 0;
+        const scores = candidates.map(c =>
+            (c as any).totalScore > 0 ? Math.round(((c as any).score / (c as any).totalScore) * 100) : 0
+        );
+
+        const averageScore = scores.length > 0
+            ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+            : 0;
+
+        const highestScore = scores.length > 0 ? Math.max(...scores) : 0;
 
         return NextResponse.json({
             analytics: {
                 totalTests,
                 totalCandidates,
                 completedCandidates,
-                completionRate:
-                    totalCandidates > 0
-                        ? Math.round((completedCandidates / totalCandidates) * 100)
-                        : 0,
+                completionRate: totalCandidates > 0
+                    ? Math.round((completedCandidates / totalCandidates) * 100)
+                    : 0,
                 averageScore,
+                highestScore,
                 totalSubmissions,
             },
         });
@@ -63,4 +63,3 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
-
