@@ -36,21 +36,28 @@ export async function POST(request: NextRequest) {
             await dbConnect();
             const problem = await Problem.findById(problemId);
             if (problem) {
-                const customWrapper = problem.wrapperCode?.[language as keyof typeof problem.wrapperCode] as string | undefined;
-                if (customWrapper && customWrapper.includes('{{USER_CODE}}')) {
-                    // Use admin-defined wrapper
-                    code = customWrapper.replace('{{USER_CODE}}', code);
-                } else if (!hasEntryPoint(code, language)) {
-                    // Fall back to built-in default wrapper only if user didn't write a complete execution block
-                    const defaultWrapper = DEFAULT_WRAPPERS[language];
-                    if (defaultWrapper) {
-                        code = defaultWrapper.replace('{{USER_CODE}}', code);
+                if (problem.type === 'sql' || language === 'sql') {
+                    // Prepare SQL execution: Schema + Seed + User Query
+                    const sqlSchema = problem.databaseSchema || '';
+                    const sqlSeed = problem.databaseSeed || '';
+                    code = `${sqlSchema}\n${sqlSeed}\n${code}`;
+                } else {
+                    const customWrapper = problem.wrapperCode?.[language as keyof typeof problem.wrapperCode] as string | undefined;
+                    if (customWrapper && customWrapper.includes('{{USER_CODE}}')) {
+                        // Use admin-defined wrapper
+                        code = customWrapper.replace('{{USER_CODE}}', code);
+                    } else if (!hasEntryPoint(code, language)) {
+                        // Fall back to built-in default wrapper only if user didn't write a complete execution block
+                        const defaultWrapper = DEFAULT_WRAPPERS[language];
+                        if (defaultWrapper) {
+                            code = defaultWrapper.replace('{{USER_CODE}}', code);
+                        }
                     }
                 }
             }
         } else {
             // No problemId — apply default wrapper only if necessary
-            if (!hasEntryPoint(code, language)) {
+            if (language !== 'sql' && !hasEntryPoint(code, language)) {
                 const defaultWrapper = DEFAULT_WRAPPERS[language];
                 if (defaultWrapper) {
                     code = defaultWrapper.replace('{{USER_CODE}}', code);
@@ -64,6 +71,7 @@ export async function POST(request: NextRequest) {
             java: 62,
             javascript: 93,
             python: 71,
+            sql: 82, // PostgreSQL
         };
 
         const langId = langMap[language];

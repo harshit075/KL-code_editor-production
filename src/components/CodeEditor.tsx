@@ -21,6 +21,7 @@ const LANGUAGE_OPTIONS = [
     { value: 'c', label: 'C', monacoLang: 'c' },
     { value: 'cpp', label: 'C++', monacoLang: 'cpp' },
     { value: 'java', label: 'Java', monacoLang: 'java' },
+    { value: 'sql', label: 'SQL', monacoLang: 'sql' },
 ];
 
 export default function CodeEditor({ code, language, onChange, onLanguageChange, onPaste }: CodeEditorProps) {

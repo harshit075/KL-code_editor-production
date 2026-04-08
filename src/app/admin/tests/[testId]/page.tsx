@@ -290,7 +290,7 @@ export default function TestDetailPage() {
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-3">
                                         <span className="text-sm font-medium text-slate-800">
-                                            {typeof sub.problemId === 'object' ? sub.problemId.title : 'Problem'}
+                                            {typeof sub.problemId === 'object' && sub.problemId !== null ? sub.problemId.title : 'Deleted Problem'}
                                         </span>
                                         <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{sub.language}</span>
                                     </div>
@@ -316,7 +316,7 @@ export default function TestDetailPage() {
                                                     <span className="w-3 h-3 rounded-full bg-green-400 inline-block" />
                                                 </div>
                                                 <span className="text-sm font-semibold text-slate-800">
-                                                    {typeof sub.problemId === 'object' ? sub.problemId.title : 'Problem'}
+                                                    {typeof sub.problemId === 'object' && sub.problemId !== null ? sub.problemId.title : 'Deleted Problem'}
                                                 </span>
                                                 <span className="text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider">{sub.language}</span>
                                             </div>
@@ -328,7 +328,11 @@ export default function TestDetailPage() {
                                                     {copiedIdx === sub._id ? '✅ Copied!' : '📋 Copy'}
                                                 </button>
                                                 <button
-                                                    onClick={() => setFullscreenCode({ code: sub.code || '', language: sub.language === 'c' ? 'c' : sub.language === 'cpp' ? 'cpp' : sub.language === 'python' ? 'python' : sub.language === 'java' ? 'java' : 'javascript', title: typeof sub.problemId === 'object' ? sub.problemId.title : 'Problem' })}
+                                                    onClick={() => setFullscreenCode({ 
+                                                        code: sub.code || '', 
+                                                        language: sub.language === 'c' ? 'c' : sub.language === 'cpp' ? 'cpp' : sub.language === 'python' ? 'python' : sub.language === 'java' ? 'java' : 'javascript', 
+                                                        title: typeof sub.problemId === 'object' && sub.problemId !== null ? sub.problemId.title : 'Deleted Problem' 
+                                                    })}
                                                     className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-all"
                                                 >
                                                     ⛶ Fullscreen

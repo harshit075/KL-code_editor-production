@@ -5,7 +5,7 @@ export interface ISubmission extends Document {
     problemId: mongoose.Types.ObjectId;
     testId: mongoose.Types.ObjectId;
     code: string;
-    language: 'c' | 'cpp' | 'java' | 'javascript';
+    language: 'c' | 'cpp' | 'java' | 'javascript' | 'python' | 'sql';
     testCasesPassed: number;
     totalTestCases: number;
     output: string;
@@ -21,7 +21,7 @@ const SubmissionSchema = new Schema<ISubmission>({
     language: {
         type: String,
         required: true,
-        enum: ['c', 'cpp', 'java', 'javascript'],
+        enum: ['c', 'cpp', 'java', 'javascript', 'python', 'sql'],
     },
     testCasesPassed: { type: Number, default: 0 },
     totalTestCases: { type: Number, default: 0 },

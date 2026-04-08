@@ -41,7 +41,6 @@ export default function Navbar({ isAdmin = false }: NavbarProps) {
                         <div className="hidden md:flex items-center gap-2">
                             {[
                                 { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-                                { href: '/admin/tests/create', label: 'Create Test', icon: PlusCircle },
                             ].map((item) => {
                                 const isActive = pathname === item.href;
                                 return (
@@ -109,13 +108,6 @@ export default function Navbar({ isAdmin = false }: NavbarProps) {
                                 >
                                     <LayoutDashboard size={18} />
                                     Dashboard
-                                </Link>
-                                <Link 
-                                    href="/admin/tests/create" 
-                                    className={`flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-lg ${pathname === '/admin/tests/create' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'}`}
-                                >
-                                    <PlusCircle size={18} />
-                                    Create Test
                                 </Link>
                                 <button 
                                     onClick={handleLogout} 

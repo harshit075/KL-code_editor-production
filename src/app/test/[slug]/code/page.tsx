@@ -21,6 +21,9 @@ interface Problem {
   sampleInput: string;
   sampleOutput: string;
   starterCode: Record<string, string>;
+  type?: 'dsa' | 'sql';
+  databaseSchema?: string;
+  databaseSeed?: string;
 }
 
 interface TestCaseResult {
@@ -64,12 +67,15 @@ export default function CodingEnvironment() {
   // Auto-fill sample input when switching problems
   useEffect(() => {
     if (currentProblem) {
+      if (currentProblem.type === 'sql') {
+        setLanguage('sql');
+      }
       setInput(currentProblem.sampleInput || '');
       setOutput('');
       setStderr('');
       setTestResults(null);
     }
-  }, [currentProblemIndex, currentProblem?.sampleInput]);
+  }, [currentProblemIndex, currentProblem?.sampleInput, currentProblem?.type]);
 
   // Load test data
   useEffect(() => {
@@ -120,6 +126,9 @@ export default function CodingEnvironment() {
             java: p.starterCode?.java && p.starterCode.java.trim()
               ? p.starterCode.java
               : 'int solution(int input) {\n    // Write your code here\n    return 0;\n}\n',
+            sql: p.starterCode?.sql && p.starterCode.sql.trim()
+              ? p.starterCode.sql
+              : '-- Write your SQL query here\nSELECT * FROM ...',
           };
         });
         setCodes(initialCodes);
@@ -648,6 +657,7 @@ export default function CodingEnvironment() {
             onInputChange={setInput}
             sampleInput={currentProblem?.sampleInput}
             onRun={handleRun}
+            problemType={currentProblem?.type || 'dsa'}
           />
         </div>
       </div>

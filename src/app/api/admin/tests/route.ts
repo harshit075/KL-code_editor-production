@@ -113,6 +113,9 @@ export async function POST(request: NextRequest) {
                 hints: customProblem.hint ? [customProblem.hint] : [],
                 tags: customProblem.isPattern ? ['pattern', 'custom'] : ['custom'],
                 isPattern: !!customProblem.isPattern,
+                type: customProblem.type || 'dsa',
+                databaseSchema: customProblem.databaseSchema || '',
+                databaseSeed: customProblem.databaseSeed || '',
                 ...(starterCode && { starterCode }),
                 ...(wrapperCode && { wrapperCode }),
             });

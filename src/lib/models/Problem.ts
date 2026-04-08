@@ -28,6 +28,9 @@ export interface IProblem extends Document {
     tags: string[];
     hints: string[];
     isPattern?: boolean;
+    type: 'dsa' | 'sql';
+    databaseSchema?: string; // For SQL: CREATE TABLE ...
+    databaseSeed?: string;   // For SQL: INSERT INTO ...
     createdAt: Date;
 }
 
@@ -67,6 +70,9 @@ const ProblemSchema = new Schema<IProblem>({
     tags: [{ type: String }],
     hints: [{ type: String }],
     isPattern: { type: Boolean, default: false },
+    type: { type: String, enum: ['dsa', 'sql'], default: 'dsa' },
+    databaseSchema: { type: String },
+    databaseSeed: { type: String },
     createdAt: { type: Date, default: Date.now },
 });
 

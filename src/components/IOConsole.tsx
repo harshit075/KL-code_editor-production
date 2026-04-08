@@ -12,6 +12,7 @@ interface IOConsoleProps {
     onInputChange: (value: string) => void;
     sampleInput?: string;
     onRun?: () => void;
+    problemType?: 'dsa' | 'sql';
 }
 
 export default function IOConsole({
@@ -22,6 +23,7 @@ export default function IOConsole({
     onInputChange,
     sampleInput,
     onRun,
+    problemType = 'dsa',
 }: IOConsoleProps) {
     const [expanded, setExpanded] = useState(true);
     const [activeTab, setActiveTab] = useState<'input' | 'output'>('input');
@@ -104,10 +106,10 @@ export default function IOConsole({
                                     : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
                             }`}
                         >
+                            {tab === 'input' && problemType === 'sql' ? 'Test Query' : tab.charAt(0).toUpperCase() + tab.slice(1)}
                             {tab === 'output' && hasOutput && (
-                                <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1.5 mb-px ${stderr ? 'bg-red-400' : 'bg-emerald-400'}`} />
+                                <span className={`inline-block w-1.5 h-1.5 rounded-full ml-1.5 mb-px ${stderr ? 'bg-red-400' : 'bg-emerald-400'}`} />
                             )}
-                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
                         </button>
                     ))}
                 </div>
@@ -138,8 +140,10 @@ export default function IOConsole({
                                 <div className="flex items-center gap-2 text-xs text-slate-500 bg-blue-50 border border-blue-100 rounded-lg px-3 py-1.5 shrink-0">
                                     <Info size={12} className="text-blue-400 shrink-0" />
                                     <span>
-                                        Type your custom input here, then click{' '}
-                                        <span className="font-semibold text-slate-700">Run Code</span> to test it.
+                                        {problemType === 'sql' 
+                                            ? 'Enter test SQL query here (overwrites the main query area), then click Run.'
+                                            : 'Type your custom input here, then click Run Code to test it.'
+                                        }
                                     </span>
                                     {sampleInput && (
                                         <button

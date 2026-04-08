@@ -24,6 +24,11 @@ export default function CreateTest() {
     const [pythonStarterCode, setPythonStarterCode] = useState('# Write your function here\ndef solution(data):\n  pass');
     const [pythonWrapperCode, setPythonWrapperCode] = useState('import sys\n\n{{USER_CODE}}\n\ndef main():\n  input_data = sys.stdin.read().strip()\n  result = solution(input_data)\n  print(result)\n\nif __name__ == "__main__":\n  main()');
     
+    // SQL State
+    const [problemType, setProblemType] = useState<'dsa' | 'sql'>('dsa');
+    const [databaseSchema, setDatabaseSchema] = useState('');
+    const [databaseSeed, setDatabaseSeed] = useState('');
+    
     // Manual Selection state
     const [availableProblems, setAvailableProblems] = useState<any[]>([]);
     const [selectedProblems, setSelectedProblems] = useState<string[]>([]);
@@ -119,7 +124,10 @@ export default function CreateTest() {
                             jsStarterCode,
                             jsWrapperCode,
                             pythonStarterCode,
-                            pythonWrapperCode
+                            pythonWrapperCode,
+                            type: problemType,
+                            databaseSchema,
+                            databaseSeed
                         } 
                       };
 
@@ -386,6 +394,11 @@ export default function CreateTest() {
                                                             }`}>
                                                                 {p.difficulty}
                                                             </span>
+                                                            {p.type === 'sql' && (
+                                                                <span className="text-[10px] px-2 py-0.5 rounded-full border border-indigo-500/30 text-indigo-400 font-bold uppercase">
+                                                                    SQL
+                                                                </span>
+                                                            )}
                                                         </div>
                                                         <div className="text-xs text-slate-500 mt-1 flex gap-1">
                                                             {p.tags?.slice(0, 3).map((t: string) => (
@@ -408,6 +421,22 @@ export default function CreateTest() {
                             </div>
                         ) : mode === 'custom' ? (
                             <div className="space-y-4">
+                                <div className="flex bg-slate-100 p-1 rounded-lg w-fit">
+                                    <button
+                                        type="button"
+                                        className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${problemType === 'dsa' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}
+                                        onClick={() => setProblemType('dsa')}
+                                    >
+                                        DSA Problem
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${problemType === 'sql' ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}
+                                        onClick={() => setProblemType('sql')}
+                                    >
+                                        SQL Problem
+                                    </button>
+                                </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-2">Problem Title</label>
                                     <input type="text" value={customTitle} onChange={e => setCustomTitle(e.target.value)} className="input-field" placeholder="e.g. Reverse a String or Print Star Pattern" />
@@ -456,6 +485,33 @@ export default function CreateTest() {
                                         </div>
                                     )}
                                 </div>
+
+                                {problemType === 'sql' && (
+                                    <div className="space-y-4 border border-indigo-100 rounded-xl p-4 bg-indigo-50/30">
+                                        <h4 className="text-sm font-bold text-indigo-900 flex items-center gap-2">
+                                            <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                                            Database Setup (SQL)
+                                        </h4>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Database Schema (DDL)</label>
+                                            <textarea 
+                                                value={databaseSchema} 
+                                                onChange={e => setDatabaseSchema(e.target.value)} 
+                                                className="input-field h-32 text-xs font-mono" 
+                                                placeholder="CREATE TABLE Users (id INT, name VARCHAR(50));" 
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-slate-700 mb-1">Seed Data (Optional)</label>
+                                            <textarea 
+                                                value={databaseSeed} 
+                                                onChange={e => setDatabaseSeed(e.target.value)} 
+                                                className="input-field h-32 text-xs font-mono" 
+                                                placeholder="INSERT INTO Users VALUES (1, 'John');" 
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                                 <div>
                                     <div className="flex justify-between items-center mb-2">
                                         <label className="block text-sm font-medium text-slate-700">Test Cases</label>

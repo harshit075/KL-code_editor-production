@@ -49,13 +49,19 @@ export async function POST(request: NextRequest) {
 
         // Wrap code: prefer admin-defined wrapper, fall back to default
         let finalCode = code;
-        const customWrapper = problem.wrapperCode?.[language as keyof typeof problem.wrapperCode] as string | undefined;
-        if (customWrapper && customWrapper.includes('{{USER_CODE}}')) {
-            finalCode = customWrapper.replace('{{USER_CODE}}', code);
-        } else if (!hasEntryPoint(code, language)) {
-            const defaultWrapper = DEFAULT_WRAPPERS[language];
-            if (defaultWrapper) {
-                finalCode = defaultWrapper.replace('{{USER_CODE}}', code);
+        if (problem.type === 'sql' || language === 'sql') {
+            const sqlSchema = problem.databaseSchema || '';
+            const sqlSeed = problem.databaseSeed || '';
+            finalCode = `${sqlSchema}\n${sqlSeed}\n${code}`;
+        } else {
+            const customWrapper = problem.wrapperCode?.[language as keyof typeof problem.wrapperCode] as string | undefined;
+            if (customWrapper && customWrapper.includes('{{USER_CODE}}')) {
+                finalCode = customWrapper.replace('{{USER_CODE}}', code);
+            } else if (!hasEntryPoint(code, language)) {
+                const defaultWrapper = DEFAULT_WRAPPERS[language];
+                if (defaultWrapper) {
+                    finalCode = defaultWrapper.replace('{{USER_CODE}}', code);
+                }
             }
         }
 
@@ -153,6 +159,7 @@ async function executeCode(
         java: 62,
         javascript: 93,
         python: 71,
+        sql: 82, // PostgreSQL
     };
 
     const langId = langMap[language];

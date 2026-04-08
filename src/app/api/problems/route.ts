@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
         }
 
         const problems = await Problem.find(filter)
-            .select('title slug difficulty tags')
+            .select('title slug difficulty tags type')
             .limit(limit)
             .sort({ createdAt: -1 });
 

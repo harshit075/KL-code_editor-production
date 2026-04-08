@@ -10,6 +10,8 @@ interface Problem {
     constraints: string[];
     sampleInput: string;
     sampleOutput: string;
+    type?: 'dsa' | 'sql';
+    databaseSchema?: string;
 }
 
 interface ProblemPanelProps {
@@ -100,6 +102,24 @@ export default function ProblemPanel({ problem, currentIndex, totalProblems, onN
                                         </li>
                                     ))}
                                 </ul>
+                            </motion.div>
+                        )}
+
+                        {/* SQL Schema */}
+                        {problem.type === 'sql' && problem.databaseSchema && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.25 }}
+                                className="bg-slate-50 border border-slate-200 rounded-xl p-4"
+                            >
+                                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                                    Database Schema
+                                </h3>
+                                <pre className="text-sm text-slate-600 bg-white border border-slate-100 p-3 rounded-lg font-mono overflow-x-auto">
+                                    {problem.databaseSchema}
+                                </pre>
                             </motion.div>
                         )}
 
