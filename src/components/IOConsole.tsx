@@ -31,12 +31,24 @@ export default function IOConsole({
     const outputRef = useRef<HTMLPreElement>(null);
 
     // Auto-switch to output tab when running finishes and there's output
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (!isRunning && (output || stderr)) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setActiveTab('output');
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             if (!expanded) setExpanded(true);
         }
     }, [isRunning, output, stderr]);
+
+    useEffect(() => {
+        const handleFocus = () => {
+            setExpanded(true);
+            setActiveTab('input');
+        };
+        window.addEventListener('focus-io-input', handleFocus);
+        return () => window.removeEventListener('focus-io-input', handleFocus);
+    }, []);
 
     // Auto-scroll output to bottom
     useEffect(() => {

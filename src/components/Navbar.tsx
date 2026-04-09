@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal, LayoutDashboard, PlusCircle, LogOut, Menu, X } from 'lucide-react';
+import { Terminal, LayoutDashboard, LogOut, Menu, X } from 'lucide-react';
 
 interface NavbarProps {
     isAdmin?: boolean;
@@ -16,8 +16,13 @@ export default function Navbar({ isAdmin = false }: NavbarProps) {
     const [mobileOpen, setMobileOpen] = useState(false);
 
     const handleLogout = async () => {
+        // Clear all admin session data from localStorage first
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminName');
+        // Invalidate server-side session cookie
         await fetch('/api/auth/logout', { method: 'POST' });
-        router.push('/admin/login');
+        // Replace history so back button cannot return to admin pages
+        router.replace('/admin/login');
     };
 
     return (

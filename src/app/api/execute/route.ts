@@ -4,7 +4,9 @@ import Problem from '@/lib/models/Problem';
 
 export async function POST(request: NextRequest) {
     try {
-        let { code, language, input, problemId } = await request.json();
+        const body = await request.json();
+        let { code } = body;
+        const { language, input, problemId } = body;
 
         if (!code || !language) {
             return NextResponse.json(

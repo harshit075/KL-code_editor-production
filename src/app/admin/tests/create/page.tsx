@@ -7,7 +7,8 @@ import Navbar from '@/components/Navbar';
 export default function CreateTest() {
     const router = useRouter();
     const [title, setTitle] = useState('');
-    const [duration, setDuration] = useState(60);
+    const [titleError, setTitleError] = useState('');
+    const [durationStr, setDurationStr] = useState('60');
     const [mode, setMode] = useState<'auto' | 'manual' | 'custom'>('auto');
     const [problemCount, setProblemCount] = useState(3);
     const [difficulties, setDifficulties] = useState<string[]>(['easy', 'medium']);
@@ -30,7 +31,14 @@ export default function CreateTest() {
     const [databaseSeed, setDatabaseSeed] = useState('');
     
     // Manual Selection state
-    const [availableProblems, setAvailableProblems] = useState<any[]>([]);
+    interface ProblemOption {
+        _id: string;
+        title: string;
+        difficulty: string;
+        type?: string;
+        tags?: string[];
+    }
+    const [availableProblems, setAvailableProblems] = useState<ProblemOption[]>([]);
     const [selectedProblems, setSelectedProblems] = useState<string[]>([]);
     const [fetchingProblems, setFetchingProblems] = useState(false);
 
@@ -43,8 +51,8 @@ export default function CreateTest() {
     const [emails, setEmails] = useState('');
     const [emailSubject, setEmailSubject] = useState('Coding Assessment Invitation');
     const [emailDescription, setEmailDescription] = useState('You have been invited to take a coding assessment. Please open the link below, fill in your information, and start the test.');
-    const [sendingEmails, setSendingEmails] = useState(false);
     const [emailStatus, setEmailStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [emailError, setEmailError] = useState('');
 
     useEffect(() => {
@@ -82,7 +90,23 @@ export default function CreateTest() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setTitleError('');
         setLoading(true);
+
+        // Validate title — no special characters allowed
+        const titleRegex = /^[a-zA-Z0-9\s\-_()&.,']+$/;
+        if (!title.trim()) {
+            setTitleError('Test title is required.');
+            setLoading(false);
+            return;
+        }
+        if (!titleRegex.test(title.trim())) {
+            setTitleError('Title must not contain special characters like @, #, $, %, !, etc.');
+            setLoading(false);
+            return;
+        }
+
+        const duration = Math.max(5, Math.min(300, parseInt(durationStr) || 5));
 
         if (mode === 'auto' && difficulties.length === 0) {
             setError('Select at least one difficulty level');
@@ -291,11 +315,19 @@ export default function CreateTest() {
                             <input
                                 type="text"
                                 value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                className="input-field"
+                                onChange={(e) => {
+                                    setTitle(e.target.value);
+                                    setTitleError('');
+                                }}
+                                className={`input-field ${titleError ? 'border-red-400 focus:ring-red-400' : ''}`}
                                 placeholder="e.g. Frontend Developer Assessment"
                                 required
                             />
+                            {titleError && (
+                                <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                                    <span>⚠️</span> {titleError}
+                                </p>
+                            )}
                         </div>
 
                         <div className="flex bg-white/50 p-1 rounded-xl">
@@ -441,50 +473,55 @@ export default function CreateTest() {
                                     <label className="block text-sm font-medium text-slate-700 mb-2">Problem Title</label>
                                     <input type="text" value={customTitle} onChange={e => setCustomTitle(e.target.value)} className="input-field" placeholder="e.g. Reverse a String or Print Star Pattern" />
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <input type="checkbox" id="isPattern" checked={isPattern} onChange={e => setIsPattern(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded bg-gray-100 border-gray-300 focus:ring-indigo-500" />
-                                    <label htmlFor="isPattern" className="text-sm font-medium text-slate-700">Is this a Pattern Problem (Easy)?</label>
-                                </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-2">Problem Description</label>
                                     <textarea value={customDescription} onChange={e => setCustomDescription(e.target.value)} className="input-field h-24 resize-none" placeholder="Describe the problem statement..."></textarea>
                                 </div>
+                                {problemType === 'dsa' && (
+                                    <div className="flex items-center gap-2">
+                                        <input type="checkbox" id="isPattern" checked={isPattern} onChange={e => setIsPattern(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded bg-gray-100 border-gray-300 focus:ring-indigo-500" />
+                                        <label htmlFor="isPattern" className="text-sm font-medium text-slate-700">Is this a Pattern Problem (Easy)?</label>
+                                    </div>
+                                )}
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-2">Hint (Optional)</label>
                                     <textarea value={customHint} onChange={e => setCustomHint(e.target.value)} className="input-field h-16 resize-none" placeholder="Optional hint for candidates..."></textarea>
                                 </div>
-                                <div className="border border-slate-200 rounded-xl p-4 bg-white/50 space-y-4">
-                                    <div className="flex items-center gap-2">
-                                        <input type="checkbox" id="usesWrapper" checked={usesWrapper} onChange={e => setUsesWrapper(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded bg-gray-100 border-gray-300 focus:ring-indigo-500" />
-                                        <label htmlFor="usesWrapper" className="text-sm font-bold text-slate-800">Use Wrapper Code Pattern</label>
-                                    </div>
-                                    <p className="text-xs text-slate-600">Provide predefined wrapper code (like Leetcode) where candidates only implement the main logic function.</p>
-                                    
-                                    {usesWrapper && (
-                                        <div className="space-y-4 pt-2">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="block text-xs font-semibold text-slate-700 mb-1">JS Starter Code</label>
-                                                    <textarea value={jsStarterCode} onChange={e => setJsStarterCode(e.target.value)} className="input-field h-32 text-xs font-mono" placeholder="function solution() {}" />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-semibold text-slate-700 mb-1">JS Wrapper (Use {'{{USER_CODE}}'})</label>
-                                                    <textarea value={jsWrapperCode} onChange={e => setJsWrapperCode(e.target.value)} className="input-field h-32 text-xs font-mono" />
-                                                </div>
-                                            </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="block text-xs font-semibold text-slate-700 mb-1">Python Starter Code</label>
-                                                    <textarea value={pythonStarterCode} onChange={e => setPythonStarterCode(e.target.value)} className="input-field h-32 text-xs font-mono" placeholder="def solution(): pass" />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-semibold text-slate-700 mb-1">Python Wrapper (Use {'{{USER_CODE}}'})</label>
-                                                    <textarea value={pythonWrapperCode} onChange={e => setPythonWrapperCode(e.target.value)} className="input-field h-32 text-xs font-mono" />
-                                                </div>
-                                            </div>
+                                
+                                {problemType === 'dsa' && (
+                                    <div className="border border-slate-200 rounded-xl p-4 bg-white/50 space-y-4">
+                                        <div className="flex items-center gap-2">
+                                            <input type="checkbox" id="usesWrapper" checked={usesWrapper} onChange={e => setUsesWrapper(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded bg-gray-100 border-gray-300 focus:ring-indigo-500" />
+                                            <label htmlFor="usesWrapper" className="text-sm font-bold text-slate-800">Use Wrapper Code Pattern</label>
                                         </div>
-                                    )}
-                                </div>
+                                        <p className="text-xs text-slate-600">Provide predefined wrapper code (like Leetcode) where candidates only implement the main logic function.</p>
+                                        
+                                        {usesWrapper && (
+                                            <div className="space-y-4 pt-2">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">JS Starter Code</label>
+                                                        <textarea value={jsStarterCode} onChange={e => setJsStarterCode(e.target.value)} className="input-field h-32 text-xs font-mono" placeholder="function solution() {}" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">JS Wrapper (Use {'{{USER_CODE}}'})</label>
+                                                        <textarea value={jsWrapperCode} onChange={e => setJsWrapperCode(e.target.value)} className="input-field h-32 text-xs font-mono" />
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Python Starter Code</label>
+                                                        <textarea value={pythonStarterCode} onChange={e => setPythonStarterCode(e.target.value)} className="input-field h-32 text-xs font-mono" placeholder="def solution(): pass" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Python Wrapper (Use {'{{USER_CODE}}'})</label>
+                                                        <textarea value={pythonWrapperCode} onChange={e => setPythonWrapperCode(e.target.value)} className="input-field h-32 text-xs font-mono" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
                                 {problemType === 'sql' && (
                                     <div className="space-y-4 border border-indigo-100 rounded-xl p-4 bg-indigo-50/30">
@@ -538,12 +575,26 @@ export default function CreateTest() {
                             <label className="block text-sm font-medium text-slate-700 mb-2">Duration (minutes)</label>
                             <input
                                 type="number"
-                                value={duration}
-                                onChange={(e) => setDuration(Math.max(5, parseInt(e.target.value) || 5))}
+                                value={durationStr}
+                                onChange={(e) => {
+                                    // Allow free editing including clearing the field
+                                    const raw = e.target.value;
+                                    // Only allow digit characters
+                                    if (raw === '' || /^\d+$/.test(raw)) {
+                                        setDurationStr(raw);
+                                    }
+                                }}
+                                onBlur={(e) => {
+                                    // Clamp to valid range on blur
+                                    const val = Math.max(5, Math.min(300, parseInt(e.target.value) || 5));
+                                    setDurationStr(String(val));
+                                }}
                                 className="input-field"
                                 min={5}
                                 max={300}
+                                placeholder="e.g. 60"
                             />
+                            <p className="mt-1 text-xs text-slate-400">Min: 5 minutes · Max: 300 minutes</p>
                         </div>
 
                         <button

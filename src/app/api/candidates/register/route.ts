@@ -15,20 +15,50 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
+        // Trim inputs
+        const name = fullName.trim();
+        const emailAddr = email.trim();
+        const org = college.trim();
+        const mob = mobile.trim();
+
+        // Validate full name — no special characters
+        const nameRegex = /^[a-zA-Z\s]+$/;
+        if (!name) {
+            return NextResponse.json({ error: 'Full name is required' }, { status: 400 });
+        }
+        if (!nameRegex.test(name)) {
+            return NextResponse.json({ error: 'Invalid name format' }, { status: 400 });
+        }
+
+        // Validate email format — TLD must be at least 2 characters
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        if (!emailRegex.test(emailAddr)) {
             return NextResponse.json(
-                { error: 'Invalid email format' },
+                { error: 'Enter valid email format' },
                 { status: 400 }
             );
         }
 
-        // Validate mobile
-        const mobileRegex = /^[0-9]{10,15}$/;
-        if (!mobileRegex.test(mobile.replace(/[\s-+]/g, ''))) {
+        // Validate college — must not be whitespace-only, and only alphabets/spaces
+        if (!org) {
             return NextResponse.json(
-                { error: 'Invalid mobile number' },
+                { error: 'College/Organization is required' },
+                { status: 400 }
+            );
+        }
+        const collegeRegex = /^[a-zA-Z\s]+$/;
+        if (!collegeRegex.test(org)) {
+            return NextResponse.json(
+                { error: 'Invalid college format. Only letters and spaces are allowed.' },
+                { status: 400 }
+            );
+        }
+
+        // Validate mobile — digits only, exactly 10 digits
+        const mobileRegex = /^\d{10}$/;
+        if (!mobileRegex.test(mob)) {
+            return NextResponse.json(
+                { error: 'Enter valid mobile number (exactly 10 digits)' },
                 { status: 400 }
             );
         }
@@ -71,10 +101,10 @@ export async function POST(request: NextRequest) {
         }
 
         const candidate = await Candidate.create({
-            fullName,
-            email: email.toLowerCase(),
-            college,
-            mobile,
+            fullName: name,
+            email: emailAddr.toLowerCase(),
+            college: org,
+            mobile: mob,
             testId: test._id,
         });
 

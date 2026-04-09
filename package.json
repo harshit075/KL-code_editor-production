@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npx tsx scripts/seed.ts && next dev",
+    "dev": "next dev",
     "build": "next build",
-    "start": "npx tsx scripts/seed.ts && next start",
+    "start": "next start",
     "seed": "npx tsx scripts/seed.ts",
     "lint": "eslint"
   },

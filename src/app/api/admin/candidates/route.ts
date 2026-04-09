@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
                 ...candidate,
                 testData: candidate.testId,
                 submissions: candidateSubs.map(sub => ({
-                    problemTitle: (sub.problemId as any)?.title || 'Unknown Problem',
+                    problemTitle: (sub.problemId as { title: string })?.title || 'Unknown Problem',
                     code: sub.code,
                     language: sub.language,
                     score: sub.testCasesPassed,
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         });
 
         return NextResponse.json({ success: true, candidates: candidatesWithDetails });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Fetch all candidates error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
@@ -74,7 +74,7 @@ export async function DELETE(request: NextRequest) {
         }
 
         return NextResponse.json({ success: true, message: 'All candidates deleted' });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Delete all candidates error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }

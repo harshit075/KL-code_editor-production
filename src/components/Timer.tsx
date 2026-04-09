@@ -38,7 +38,6 @@ export default function Timer({ remainingMs, onTimeUp }: TimerProps) {
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // ← empty deps: interval starts once and never restarts
 
     const hours = Math.floor(timeLeft / 3600);

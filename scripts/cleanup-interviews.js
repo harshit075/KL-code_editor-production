@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 
-// Basic env parser
+// Load .env.local
 const envPath = path.resolve(process.cwd(), '.env.local');
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf-8');
@@ -18,27 +18,18 @@ if (fs.existsSync(envPath)) {
   });
 }
 
-const uri = process.env.MONGODB_URI;
-console.log('Connecting to:', uri);
+const MONGODB_URI = process.env.MONGODB_URI;
 
-mongoose.connect(uri)
+mongoose.connect(MONGODB_URI)
   .then(async () => {
-    const problems = await mongoose.connection.collection('problems').find({}).toArray();
-    console.log(`Total problems in DB: ${problems.length}`);
+    // Delete only the problems with type: 'dsa'
+    const result = await mongoose.connection.collection('problems').deleteMany({ type: 'dsa' });
+    console.log(`Successfully removed ${result.deletedCount} interview problems.`);
     
-    const typeCounts = {};
-    problems.forEach(p => {
-      const type = p.type || 'undefined';
-      typeCounts[type] = (typeCounts[type] || 0) + 1;
-    });
-    console.log('Counts by type:', typeCounts);
-
-    const difficultyCounts = {};
-    problems.forEach(p => {
-      difficultyCounts[p.difficulty] = (difficultyCounts[p.difficulty] || 0) + 1;
-    });
-    console.log('Counts by difficulty:', difficultyCounts);
-
+    // Final check
+    const remaining = await mongoose.connection.collection('problems').countDocuments();
+    console.log(`Remaining problems in DB: ${remaining}`);
+    
     process.exit(0);
   })
   .catch(err => {

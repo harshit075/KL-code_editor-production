@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
         // Single-tenant: fetch ALL test IDs (no createdBy filter)
         const testIdDocs = await Test.find({}, '_id').lean();
-        const testIdList = testIdDocs.map(t => (t as any)._id);
+        const testIdList = testIdDocs.map(t => (t as { _id: unknown })._id);
         const totalTests = testIdList.length;
 
         // Run all remaining queries in parallel — single round-trip
@@ -35,9 +35,10 @@ export async function GET(request: NextRequest) {
             Submission.countDocuments({ testId: { $in: testIdList } }),
         ]);
 
-        const scores = candidates.map(c =>
-            (c as any).totalScore > 0 ? Math.round(((c as any).score / (c as any).totalScore) * 100) : 0
-        );
+        const scores = candidates.map(c => {
+            const typedC = c as { score: number; totalScore: number };
+            return typedC.totalScore > 0 ? Math.round((typedC.score / typedC.totalScore) * 100) : 0;
+        });
 
         const averageScore = scores.length > 0
             ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)

@@ -1,0 +1,113 @@
+﻿
+> kadel-labs-code-editor@0.1.0 lint
+> eslint
+
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\scripts\add-100-problems.ts
+  19:10  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\scripts\cleanup-interviews.js
+  1:18  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  2:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  3:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\scripts\theme-converter.js
+  1:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  2:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\seed-copy.ts
+  1:0  error  Parsing error: File appears to be binary
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\seed-sql-final.js
+  1:18  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\app\admin\tests\create\page.tsx
+  33:64  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  46:12  warning  'sendingEmails' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  46:27  warning  'setSendingEmails' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  48:24  warning  'setEmailError' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\app\api\admin\analytics\route.ts
+  19:54  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  39:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  39:59  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  39:78  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\app\api\admin\candidates\route.ts
+  39:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  49:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  77:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\app\api\admin\dashboard\route.ts
+  28:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  73:48  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  81:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  81:59  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  81:78  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\app\api\admin\tests\route.ts
+  230:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\app\api\candidates\finalize\route.ts
+  4:8  warning  'Submission' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\app\api\candidates\start\route.ts
+  58:26   error  A `require()` style import is forbidden   @typescript-eslint/no-require-imports
+  59:58   error  A `require()` style import is forbidden   @typescript-eslint/no-require-imports
+  60:109  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  63:61   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\app\api\execute\route.ts
+  7:21  error  'language' is never reassigned. Use 'const' instead   prefer-const
+  7:31  error  'input' is never reassigned. Use 'const' instead      prefer-const
+  7:38  error  'problemId' is never reassigned. Use 'const' instead  prefer-const
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\app\test\[slug]\code\page.tsx
+  11:18  warning  'AnimatePresence' is defined but never used                                                                        @typescript-eslint/no-unused-vars
+  12:23  warning  'ChevronRight' is defined but never used                                                                           @typescript-eslint/no-unused-vars
+  12:37  warning  'AlertCircle' is defined but never used                                                                            @typescript-eslint/no-unused-vars
+  78:6   warning  React Hook useEffect has a missing dependency: 'currentProblem'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\app\test\[slug]\page.tsx
+  19:12  warning  'testInfo' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  19:22  warning  'setTestInfo' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\components\AntiCheat.tsx
+  35:15  warning  'handleKeyDown' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\components\CodeEditor.tsx
+  4:10  warning  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\components\IOConsole.tsx
+  36:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\components\IOConsole.tsx:36:13
+  34 |     useEffect(() => {
+  35 |         if (!isRunning && (output || stderr)) {
+> 36 |             setActiveTab('output');
+     |             ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  37 |             if (!expanded) setExpanded(true);
+  38 |         }
+  39 |     }, [isRunning, output, stderr]);  react-hooks/set-state-in-effect
+  39:8   warning  React Hook useEffect has a missing dependency: 'expanded'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               react-hooks/exhaustive-deps
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\components\Navbar.tsx
+  7:37  warning  'PlusCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\src\components\Timer.tsx
+  41:5  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+
+D:\DevOps\Kadel\Projects\KL Code Editor\kadel-labs-code-editor\test-db.js
+  1:18  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  2:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  3:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+Γ£û 48 problems (32 errors, 16 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

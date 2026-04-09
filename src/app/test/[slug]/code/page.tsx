@@ -8,8 +8,8 @@ import IOConsole from '@/components/IOConsole';
 import Timer from '@/components/Timer';
 import AntiCheat from '@/components/AntiCheat';
 import CameraMonitor from '@/components/CameraMonitor';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Check, ChevronRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Play, Check, CheckCircle2 } from 'lucide-react';
 
 interface Problem {
   _id: string;
@@ -75,6 +75,7 @@ export default function CodingEnvironment() {
       setStderr('');
       setTestResults(null);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentProblemIndex, currentProblem?.sampleInput, currentProblem?.type]);
 
   // Load test data
@@ -106,6 +107,7 @@ export default function CodingEnvironment() {
         setTestId(data.test.id);
         setProblems(data.test.problems);
         setRemainingMs(data.remainingMs);
+        setTabSwitchCount(data.candidate.tabSwitchCount || 0);
 
         // Initialize codes with starter code (wrapper is hidden, only the function stub is shown)
         const initialCodes: Record<string, Record<string, string>> = {};
@@ -186,21 +188,40 @@ export default function CodingEnvironment() {
     setStderr('');
     setTestResults(null);
 
-    try {
-      const res = await fetch('/api/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code: currentCode,
-          language,
-          input: inputOverride !== undefined ? inputOverride : input,
-          problemId: currentProblem._id,
-        }),
-      });
+    // Run custom-input execution AND hidden test cases in parallel
+    const executePromise = fetch('/api/execute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: currentCode,
+        language,
+        input: inputOverride !== undefined ? inputOverride : input,
+        problemId: currentProblem._id,
+      }),
+    }).then(r => r.json()).catch(() => ({ stdout: '', stderr: 'Execution service unavailable' }));
 
-      const data = await res.json();
-      setOutput(data.stdout || '');
-      setStderr(data.stderr || '');
+    // Also run all test cases (including hidden) if candidateId is available
+    const testRunPromise = candidateId
+      ? fetch('/api/candidates/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            candidateId,
+            problemId: currentProblem._id,
+            testId,
+            code: currentCode,
+            language,
+          }),
+        }).then(r => r.json()).catch(() => null)
+      : Promise.resolve(null);
+
+    try {
+      const [execData, testData] = await Promise.all([executePromise, testRunPromise]);
+      setOutput(execData.stdout || '');
+      setStderr(execData.stderr || '');
+      if (testData?.results) {
+        setTestResults(testData.results);
+      }
     } catch {
       setStderr('Execution service unavailable');
     } finally {
@@ -270,6 +291,9 @@ export default function CodingEnvironment() {
       });
 
       setSubmitted(true);
+      if (typeof document !== 'undefined' && document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
     } catch {
       console.error('Final submit failed');
       setIsEndingTest(false); // re-enable button on failure
@@ -386,7 +410,11 @@ export default function CodingEnvironment() {
 
   return (
     <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
-      <AntiCheat candidateId={candidateId} onViolation={handleTabViolation} />
+      <AntiCheat 
+        candidateId={candidateId} 
+        initialSwitchCount={tabSwitchCount} 
+        onViolation={handleTabViolation} 
+      />
       <CameraMonitor
         onViolation={handleCameraViolation}
         onPermissionDenied={handleCameraPermissionDenied}
@@ -476,7 +504,11 @@ export default function CodingEnvironment() {
         <div className="flex items-center gap-3">
           <Timer remainingMs={remainingMs} onTimeUp={handleFinalSubmit} />
           <button
-            onClick={handleFinalSubmit}
+            onClick={() => {
+              if (window.confirm("Are you sure you want to end the test?")) {
+                handleFinalSubmit();
+              }
+            }}
             disabled={isEndingTest}
             className="btn-danger text-sm px-4 py-2 flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
@@ -501,7 +533,10 @@ export default function CodingEnvironment() {
             currentIndex={currentProblemIndex}
             totalProblems={problems.length}
             onNavigate={setCurrentProblemIndex}
-            onLoadSample={() => setInput(currentProblem.sampleInput || '')}
+            onLoadSample={() => {
+              setInput(currentProblem.sampleInput || '');
+              window.dispatchEvent(new CustomEvent('focus-io-input'));
+            }}
             onRunSample={handleRunSample}
           />
         </div>
@@ -515,7 +550,6 @@ export default function CodingEnvironment() {
               language={language}
               onChange={updateCode}
               onLanguageChange={setLanguage}
-              onPaste={handlePaste}
             />
           </div>
 
@@ -538,7 +572,7 @@ export default function CodingEnvironment() {
                 ) : (
                   <>
                     <Play size={14} className="text-slate-700" />
-                    Run Code
+                    Run &amp; Test
                   </>
                 )}
               </motion.button>
@@ -564,8 +598,8 @@ export default function CodingEnvironment() {
               </motion.button>
               {/* Hint */}
               <span className="hidden md:block text-xs text-slate-400 border-l border-slate-200 pl-3 ml-1">
-                <span className="font-medium text-slate-500">Run</span> = test with your input ·{' '}
-                <span className="font-medium text-slate-500">Submit</span> = check all test cases
+                <span className="font-medium text-slate-500">Run &amp; Test</span> = run with your input + check all hidden cases ·{' '}
+                <span className="font-medium text-slate-500">Submit</span> = save &amp; finalize
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">

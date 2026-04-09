@@ -4,28 +4,50 @@ import { useEffect, useRef } from 'react';
 
 interface AntiCheatProps {
     candidateId: string;
+    initialSwitchCount?: number;
     onViolation?: (type: string, count: number) => void;
 }
 
-export default function AntiCheat({ candidateId, onViolation }: AntiCheatProps) {
-    const switchCountRef = useRef(0);
+export default function AntiCheat({ candidateId, initialSwitchCount = 0, onViolation }: AntiCheatProps) {
+    const switchCountRef = useRef(initialSwitchCount);
 
     useEffect(() => {
+        if (initialSwitchCount > switchCountRef.current) {
+            switchCountRef.current = initialSwitchCount;
+        }
+    }, [initialSwitchCount]);
+
+    useEffect(() => {
+        let lastViolationTime = 0;
+
+        const triggerViolation = (reason: string) => {
+            const now = Date.now();
+            // Debounce violations by 2 seconds to avoid double counting blur+visibilitychange
+            if (now - lastViolationTime < 2000) return;
+            lastViolationTime = now;
+
+            switchCountRef.current += 1;
+
+            // Report to server
+            fetch('/api/candidates/tab-switch', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ candidateId, reason }),
+            }).catch(() => { });
+
+            if (onViolation) {
+                onViolation('tab-switch', switchCountRef.current);
+            }
+        };
+
         const handleVisibilityChange = () => {
             if (document.hidden) {
-                switchCountRef.current += 1;
-
-                // Report to server
-                fetch('/api/candidates/tab-switch', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ candidateId }),
-                }).catch(() => { });
-
-                if (onViolation) {
-                    onViolation('tab-switch', switchCountRef.current);
-                }
+                triggerViolation('tab-switch');
             }
+        };
+
+        const handleBlur = () => {
+            triggerViolation('blur');
         };
 
         const handleContextMenu = (e: MouseEvent) => {
@@ -44,7 +66,9 @@ export default function AntiCheat({ candidateId, onViolation }: AntiCheatProps) 
         };
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('blur', handleBlur);
         document.addEventListener('contextmenu', handleContextMenu);
+        document.addEventListener('keydown', handleKeyDown);
 
         // Request fullscreen
         const requestFullscreen = async () => {
@@ -62,7 +86,9 @@ export default function AntiCheat({ candidateId, onViolation }: AntiCheatProps) 
 
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('blur', handleBlur);
             document.removeEventListener('contextmenu', handleContextMenu);
+            document.removeEventListener('keydown', handleKeyDown);
             clearTimeout(timer);
         };
     }, [candidateId, onViolation]);

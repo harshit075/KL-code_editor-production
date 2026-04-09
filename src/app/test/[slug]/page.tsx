@@ -16,7 +16,6 @@ export default function TestRegistration() {
     const [mobile, setMobile] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [testInfo, setTestInfo] = useState<{ title: string } | null>(null);
 
     // Camera permission state
     const [cameraStatus, setCameraStatus] = useState<CameraStatus>('checking');
@@ -84,6 +83,60 @@ export default function TestRegistration() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // ── Client-side validation ──
+        const trimmedName = fullName.trim();
+        const trimmedCollege = college.trim();
+        const trimmedMobile = mobile.trim();
+        const trimmedEmail = email.trim();
+
+        // Full name: required & no special characters
+        if (!trimmedName) {
+            setError('Full name is required.');
+            return;
+        }
+        const nameRegex = /^[a-zA-Z\s]+$/;
+        if (!nameRegex.test(trimmedName)) {
+            setError('Invalid name format. Only letters and spaces are allowed.');
+            return;
+        }
+
+        // Email: required & valid format with proper TLD (min 2 chars)
+        if (!trimmedEmail) {
+            setError('Email is required.');
+            return;
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        if (!emailRegex.test(trimmedEmail)) {
+            setError('Enter a valid email format (e.g. john@example.com).');
+            return;
+        }
+
+        // College: required & not whitespace-only & only alphabets
+        if (!trimmedCollege) {
+            setError('College/Organization is required.');
+            return;
+        }
+        const collegeRegex = /^[a-zA-Z\s]+$/;
+        if (!collegeRegex.test(trimmedCollege)) {
+            setError('Invalid college format. Only letters and spaces are allowed.');
+            return;
+        }
+
+        // Mobile: required, digits only, exactly 10 digits
+        if (!trimmedMobile) {
+            setError('Mobile number is required.');
+            return;
+        }
+        const mobileDigitRegex = /^\d+$/;
+        if (!mobileDigitRegex.test(trimmedMobile)) {
+            setError('Only digits are allowed in the mobile number.');
+            return;
+        }
+        if (trimmedMobile.length !== 10) {
+            setError('Enter a valid mobile number (exactly 10 digits).');
+            return;
+        }
+
         // Block submission if camera not granted
         if (cameraStatus !== 'granted') {
             setError('Camera access is required to start the test. Please allow camera access first.');
@@ -97,7 +150,13 @@ export default function TestRegistration() {
             const res = await fetch('/api/candidates/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fullName, email, college, mobile, testSlug: slug }),
+                body: JSON.stringify({
+                    fullName: trimmedName,
+                    email: trimmedEmail,
+                    college: trimmedCollege,
+                    mobile: trimmedMobile,
+                    testSlug: slug,
+                }),
             });
 
             const data = await res.json();
@@ -230,7 +289,13 @@ export default function TestRegistration() {
                             <input
                                 type="tel"
                                 value={mobile}
-                                onChange={(e) => setMobile(e.target.value)}
+                                onChange={(e) => {
+                                    // Allow only digit characters
+                                    const digitsOnly = e.target.value.replace(/\D/g, '');
+                                    setMobile(digitsOnly);
+                                }}
+                                inputMode="numeric"
+                                maxLength={10}
                                 className="input-field"
                                 placeholder="9876543210"
                                 required

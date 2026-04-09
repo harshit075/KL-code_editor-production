@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+
 import { motion } from 'framer-motion';
 import { Code2, ChevronDown } from 'lucide-react';
 

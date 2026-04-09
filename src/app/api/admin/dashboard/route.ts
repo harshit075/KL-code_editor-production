@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
             .sort({ createdAt: -1 })
             .lean();
 
-        const testIds = tests.map(t => (t._id as any));
+        const testIds = tests.map(t => (t._id as unknown));
 
         // ── Step 2: Run all aggregations in parallel ──────────────────────────
         const [candidateStats, completedCandidates, scoredCandidates, totalSubmissions] = await Promise.all([
@@ -70,16 +70,17 @@ export async function GET(request: NextRequest) {
         }, {} as Record<string, { candidateCount: number; completedCount: number }>);
 
         const testsWithStats = tests.map(test => {
-            const stat = statsMap[(test._id as any).toString()] ?? { candidateCount: 0, completedCount: 0 };
+            const stat = statsMap[(test._id as { toString: () => string }).toString()] ?? { candidateCount: 0, completedCount: 0 };
             return { ...test, candidateCount: stat.candidateCount, completedCount: stat.completedCount };
         });
 
         // ── Step 4: Assemble analytics ────────────────────────────────────────
         const totalCandidates = candidateStats.reduce((sum, s) => sum + s.candidateCount, 0);
 
-        const scores = scoredCandidates.map(c =>
-            (c as any).totalScore > 0 ? Math.round(((c as any).score / (c as any).totalScore) * 100) : 0
-        );
+        const scores = scoredCandidates.map(c => {
+            const typedC = c as { score: number; totalScore: number };
+            return typedC.totalScore > 0 ? Math.round((typedC.score / typedC.totalScore) * 100) : 0;
+        });
 
         const averageScore = scores.length > 0
             ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)

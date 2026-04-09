@@ -181,9 +181,9 @@ export default function ProblemPanel({ problem, currentIndex, totalProblems, onN
                                 <div className="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5 text-xs text-blue-700">
                                     <span className="shrink-0 mt-0.5">💡</span>
                                     <span>
-                                        Click <strong>▶ Try Sample</strong> to auto-load this input and run your code,
-                                        or type custom values in the console below and click <strong>Run Code</strong>.
-                                        Use <strong>Submit &amp; Test</strong> to check all hidden test cases.
+                                        Click <strong>▶ Try Sample</strong> to auto-load this input and run your code.{' '}
+                                        <strong>Run &amp; Test</strong> runs your code with custom input <em>and</em> checks all hidden test cases at once.
+                                        Use <strong>Submit &amp; Test</strong> to save your final solution.
                                     </span>
                                 </div>
                             )}

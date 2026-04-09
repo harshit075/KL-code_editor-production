@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Candidate from '@/lib/models/Candidate';
 import Test from '@/lib/models/Test';
+import Submission from '@/lib/models/Submission';
 
 export async function POST(request: NextRequest) {
     try {
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
 
         const test = await Test.findById(candidate.testId).populate(
             'problems',
-            'title slug description difficulty constraints sampleInput sampleOutput starterCode hints tags'
+            'title slug description difficulty constraints sampleInput sampleOutput starterCode hints tags type databaseSchema'
         );
 
         if (!test) {
@@ -55,11 +56,10 @@ export async function POST(request: NextRequest) {
         }
 
         // Fetch any existing autosaved submissions
-        const mongoose = require('mongoose');
-        const Submission = mongoose.models.Submission || require('@/lib/models/Submission').default;
-        const autosaves = await Submission.find({ candidateId: candidate._id, testId: test._id }).lean() as any[];
+        const autosaves = await Submission.find({ candidateId: candidate._id, testId: test._id }).lean() as { problemId: { toString: () => string }, code: string, language: string }[];
 
         // Map over problems to inject autosaved code into starterCode object
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const problemsWithAutosaves = test.problems.map((p: any) => {
             const probObj = p.toObject ? p.toObject() : p;
             const saved = autosaves.find((s) => s.problemId.toString() === p._id.toString());
@@ -81,6 +81,7 @@ export async function POST(request: NextRequest) {
                 id: candidate._id,
                 startedAt: candidate.startedAt,
                 status: candidate.status,
+                tabSwitchCount: candidate.tabSwitchCount || 0,
             },
             remainingMs,
         });
