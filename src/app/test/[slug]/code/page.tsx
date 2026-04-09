@@ -58,6 +58,7 @@ export default function CodingEnvironment() {
   const [cameraViolationCount, setCameraViolationCount] = useState(0);
   const [cameraWarningMsg, setCameraWarningMsg] = useState('');
   const [noFaceWarningLog, setNoFaceWarningLog] = useState<string[]>([]);
+  const [noFaceToast, setNoFaceToast] = useState(false);
   const [isEndingTest, setIsEndingTest] = useState(false);
   const autosaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -332,6 +333,8 @@ export default function CodingEnvironment() {
       ]);
       setCameraWarningMsg('No face detected — please stay in front of your camera.');
       setCameraViolationCount(count); // still update so the camera widget shows dots
+      setNoFaceToast(true);
+      setTimeout(() => setNoFaceToast(false), 3000);
     } else {
       // Multiple faces: treat as a serious violation, auto-submit at 3
       const msg = 'Multiple faces detected — outside assistance is not allowed.';
@@ -451,22 +454,12 @@ export default function CodingEnvironment() {
           </div>
         </div>
       )}
-      {/* No-face: transient alert banner (fades after a moment via camera widget; here just for extra visibility) */}
-      {noFaceWarningLog.length > 0 && noFaceWarningLog.length < 3 && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-amber-600 text-white px-6 py-3 rounded-xl shadow-2xl border border-amber-400/50 animate-bounce">
-          <span className="text-xl">🎥</span>
+      {/* No-face: transient alert banner */}
+      {noFaceToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-amber-600 text-white px-5 py-2.5 rounded-full shadow-xl border border-amber-400/50 animate-bounce text-sm">
+          <span className="text-lg">🎥</span>
           <div>
-            <div className="font-bold text-sm">No Face Detected! ({noFaceWarningLog.length}/3)</div>
-            <div className="text-xs text-amber-200">Please stay in front of your camera during the test.</div>
-          </div>
-        </div>
-      )}
-      {noFaceWarningLog.length >= 3 && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-red-700 text-white px-6 py-3 rounded-xl shadow-2xl border border-red-500/50 animate-pulse">
-          <span className="text-xl">🚨</span>
-          <div>
-            <div className="font-bold text-sm">No Face Detected {noFaceWarningLog.length} Times!</div>
-            <div className="text-xs text-red-200">This has been flagged. See the warning log on your submission.</div>
+            <div className="font-bold">No Face Detected!</div>
           </div>
         </div>
       )}

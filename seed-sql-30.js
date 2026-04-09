@@ -79,7 +79,7 @@ Write a SQL query to retrieve **all columns** from the \`Employees\` table.
       { input: 'sql', expectedOutput: '1|Alice|50000|HR\n2|Bob|60000|IT\n3|Charlie|55000|IT', isHidden: true },
       { input: 'sql', expectedOutput: '1|Alice|50000|HR\n2|Bob|60000|IT\n3|Charlie|55000|IT', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT ...\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -134,7 +134,7 @@ David
       { input: 'sql', expectedOutput: 'Bob\nCharlie\nDavid', isHidden: true },
       { input: 'sql', expectedOutput: 'Bob\nCharlie\nDavid', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT name\nFROM Employees\nWHERE ...\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -190,7 +190,7 @@ Sales|2
       { input: 'sql', expectedOutput: 'HR|1\nIT|2\nSales|2', isHidden: true },
       { input: 'sql', expectedOutput: 'HR|1\nIT|2\nSales|2', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT department, COUNT(*) AS count\nFROM Employees\nGROUP BY ...\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -249,7 +249,7 @@ Diana
       { input: 'sql', expectedOutput: 'Bob\nDiana', isHidden: true },
       { input: 'sql', expectedOutput: 'Bob\nDiana', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT e.name\nFROM Employees e\nLEFT JOIN Projects p ON ...\nWHERE ...\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -304,7 +304,7 @@ Sales|3000.0
       { input: 'sql', expectedOutput: 'HR|1500.0\nIT|1500.0\nSales|3000.0', isHidden: true },
       { input: 'sql', expectedOutput: 'HR|1500.0\nIT|1500.0\nSales|3000.0', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT dept, AVG(amount) AS avg_salary\nFROM Salaries\nGROUP BY ...\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -361,7 +361,7 @@ Find the **top 3 unique highest salaries** from the Employees table.
       { input: 'sql', expectedOutput: '500\n400\n300', isHidden: true },
       { input: 'sql', expectedOutput: '500\n400\n300', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT DISTINCT salary\nFROM Employees\nORDER BY salary DESC\nLIMIT 3;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -414,7 +414,7 @@ c@d.com
       { input: 'sql', expectedOutput: 'a@b.com\nc@d.com', isHidden: true },
       { input: 'sql', expectedOutput: 'a@b.com\nc@d.com', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT email\nFROM Users\nGROUP BY email\nHAVING ...\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -471,7 +471,7 @@ John
       { input: 'sql', expectedOutput: 'John', isHidden: true },
       { input: 'sql', expectedOutput: 'John', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT m.name\nFROM Employee e\nJOIN Employee m ON e.managerId = m.id\nGROUP BY m.id, m.name\nHAVING ...\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -534,7 +534,7 @@ Return \`employee_id\` and \`bonus\`, ordered by \`employee_id\`.
       { input: 'sql', expectedOutput: '2|0\n3|0\n7|7400\n8|0\n9|7700', isHidden: true },
       { input: 'sql', expectedOutput: '2|0\n3|0\n7|7400\n8|0\n9|7700', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT employee_id,\n  CASE WHEN ... THEN salary ELSE 0 END AS bonus\nFROM Employees\nORDER BY employee_id;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -589,7 +589,7 @@ After the update, write a SELECT to verify: return \`id\` and \`sex\` ordered by
       { input: 'sql', expectedOutput: '1|f\n2|m\n3|f\n4|m', isHidden: true },
       { input: 'sql', expectedOutput: '1|f\n2|m\n3|f\n4|m', isHidden: true },
     ],
-    starterCode: { sql: '-- Step 1: Update\nUPDATE Salary SET sex = CASE WHEN sex = ... THEN ... ELSE ... END;\n-- Step 2: Verify\nSELECT id, sex FROM Salary ORDER BY id;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -648,7 +648,7 @@ Max
       { input: 'sql', expectedOutput: 'Henry\nMax', isHidden: true },
       { input: 'sql', expectedOutput: 'Henry\nMax', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT c.name\nFROM Customers c\nLEFT JOIN Orders o ON c.id = o.customerId\nWHERE ...\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -701,7 +701,7 @@ Brazil|202790000|8515767
       { input: 'sql', expectedOutput: 'Afghanistan|25500100|652230\nAlgeria|37100000|2381741\nBrazil|202790000|8515767', isHidden: true },
       { input: 'sql', expectedOutput: 'Afghanistan|25500100|652230\nAlgeria|37100000|2381741\nBrazil|202790000|8515767', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT name, population, area\nFROM World\nWHERE ...\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -757,7 +757,7 @@ After deletion, \`SELECT id, email FROM Person ORDER BY id\` should show only un
       { input: 'sql', expectedOutput: '1|john@example.com\n2|bob@example.com\n4|alice@example.com', isHidden: true },
       { input: 'sql', expectedOutput: '1|john@example.com\n2|bob@example.com\n4|alice@example.com', isHidden: true },
     ],
-    starterCode: { sql: '-- Step 1: Delete duplicates\nDELETE FROM Person WHERE id NOT IN (...);\n-- Step 2: Verify\nSELECT id, email FROM Person ORDER BY id;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -812,7 +812,7 @@ Math
       { input: 'sql', expectedOutput: 'Math', isHidden: true },
       { input: 'sql', expectedOutput: 'Math', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT class\nFROM Courses\nGROUP BY class\nHAVING ...\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -863,7 +863,7 @@ Find the **2nd highest salary** from the \`Employee\` table. If there is no 2nd 
       { input: 'sql', expectedOutput: '300', isHidden: true },
       { input: 'sql', expectedOutput: '300', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT DISTINCT salary\nFROM Employee\nORDER BY salary DESC\nLIMIT 1 OFFSET 1;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -917,7 +917,7 @@ Find all dates' \`id\` where the temperature is **higher than the previous day's
       { input: 'sql', expectedOutput: '2\n4', isHidden: true },
       { input: 'sql', expectedOutput: '2\n4', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT w1.id\nFROM Weather w1\nJOIN Weather w2 ON DATEDIFF(w1.recordDate, w2.recordDate) = 1\nWHERE ...\nORDER BY w1.id;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -970,7 +970,7 @@ Joe
       { input: 'sql', expectedOutput: 'Joe', isHidden: true },
       { input: 'sql', expectedOutput: 'Joe', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT e.name\nFROM Employee e\nJOIN Employee m ON e.managerId = m.id\nWHERE ...\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -1030,7 +1030,7 @@ Return \`score\` and \`rank\`, ordered by score descending.
       { input: 'sql', expectedOutput: '4.00|1\n4.00|1\n3.85|2\n3.65|3\n3.65|3\n3.50|4', isHidden: true },
       { input: 'sql', expectedOutput: '4.00|1\n4.00|1\n3.85|2\n3.65|3\n3.65|3\n3.50|4', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT score,\n  DENSE_RANK() OVER (ORDER BY score DESC) AS rank\nFROM Scores\nORDER BY score DESC;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -1086,7 +1086,7 @@ IDs are consecutive integers.
       { input: 'sql', expectedOutput: '1', isHidden: true },
       { input: 'sql', expectedOutput: '1', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT DISTINCT l1.num AS ConsecutiveNums\nFROM Logs l1\nJOIN Logs l2 ON l1.id + 1 = l2.id\nJOIN Logs l3 ON l2.id + 1 = l3.id\nWHERE ...\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -1149,7 +1149,7 @@ Sales|Max|90000
       { input: 'sql', expectedOutput: 'IT|Jim|90000\nSales|Henry|80000\nSales|Max|90000', isHidden: true },
       { input: 'sql', expectedOutput: 'IT|Jim|90000\nSales|Henry|80000\nSales|Max|90000', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT d.name AS Department, e.name AS Employee, e.salary\nFROM Employee e\nJOIN Department d ON e.departmentId = d.id\nWHERE (e.departmentId, e.salary) IN (\n  SELECT departmentId, MAX(salary) FROM Employee GROUP BY departmentId\n)\nORDER BY d.name, e.name;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -1205,7 +1205,7 @@ Return \`x\`, \`y\`, \`z\`, and \`triangle\` (\`'Yes'\` or \`'No'\`).
       { input: 'sql', expectedOutput: '13|15|30|No\n10|20|15|Yes', isHidden: true },
       { input: 'sql', expectedOutput: '13|15|30|No\n10|20|15|Yes', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT x, y, z,\n  CASE WHEN ... THEN "Yes" ELSE "No" END AS triangle\nFROM Triangle;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -1267,7 +1267,7 @@ Return \`id\`, \`visit_date\`, and \`people\`. Order by \`visit_date\` ascending
       { input: 'sql', expectedOutput: '5|2017-01-05|145\n6|2017-01-06|1455\n7|2017-01-07|199\n8|2017-01-08|188', isHidden: true },
       { input: 'sql', expectedOutput: '5|2017-01-05|145\n6|2017-01-06|1455\n7|2017-01-07|199\n8|2017-01-08|188', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\n-- Hint: self-join three times on consecutive ids\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -1326,7 +1326,7 @@ The **first order** is the one with the minimum \`order_date\` for each customer
       { input: 'sql', expectedOutput: '50.00', isHidden: true },
       { input: 'sql', expectedOutput: '50.00', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT ROUND(100.0 * SUM(CASE WHEN order_date = customer_pref_delivery_date THEN 1 ELSE 0 END) / COUNT(*), 2) AS immediate_percentage\nFROM Delivery\nWHERE (customer_id, order_date) IN (\n  SELECT customer_id, MIN(order_date) FROM Delivery GROUP BY customer_id\n);\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -1381,7 +1381,7 @@ The primary key is (player_id, event_date).
       { input: 'sql', expectedOutput: '0.33', isHidden: true },
       { input: 'sql', expectedOutput: '0.33', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\n-- Hint: Find first login per player, then check if they logged in next day\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -1443,7 +1443,7 @@ iPad|2011|9000
       { input: 'sql', expectedOutput: 'iPhone|2008|10000\niPhone|2009|5000\niPad|2011|9000', isHidden: true },
       { input: 'sql', expectedOutput: 'iPhone|2008|10000\niPhone|2009|5000\niPad|2011|9000', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT p.product_name, s.year, s.price\nFROM Sales s\nJOIN Product p ON s.product_id = p.product_id\nORDER BY p.product_name, s.year;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -1505,7 +1505,7 @@ For each \`action_date\`, find the number of **posts reported as spam** (distinc
       { input: 'sql', expectedOutput: '2019-07-02|1\n2019-07-04|1', isHidden: true },
       { input: 'sql', expectedOutput: '2019-07-02|1\n2019-07-04|1', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT action_date, COUNT(DISTINCT post_id) AS spam_posts_count\nFROM Actions\nWHERE action = "report" AND extra = "spam"\nGROUP BY action_date\nORDER BY action_date;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -1564,7 +1564,7 @@ Find for each \`month\` and \`country\`: the number of transactions, total amoun
       { input: 'sql', expectedOutput: '2018-12|US|2|3000|1|1000\n2019-01|DE|1|2000|1|2000\n2019-01|US|1|2000|1|2000', isHidden: true },
       { input: 'sql', expectedOutput: '2018-12|US|2|3000|1|1000\n2019-01|DE|1|2000|1|2000\n2019-01|US|1|2000|1|2000', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT DATE_FORMAT(trans_date, "%Y-%m") AS month, country,\n  COUNT(*) AS trans_count,\n  SUM(amount) AS total_amount,\n  SUM(CASE WHEN state = "approved" THEN 1 ELSE 0 END) AS approved_count,\n  SUM(CASE WHEN state = "approved" THEN amount ELSE 0 END) AS approved_total_amount\nFROM Transactions\nGROUP BY month, country\nORDER BY month, country;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -1623,7 +1623,7 @@ Customer purchases: Customer 1 → keys 5,6; Customer 2 → key 5; Customer 3 �
       { input: 'sql', expectedOutput: '1\n3', isHidden: true },
       { input: 'sql', expectedOutput: '1\n3', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT customer_id\nFROM Customer\nGROUP BY customer_id\nHAVING COUNT(DISTINCT product_key) = (SELECT COUNT(*) FROM Product)\nORDER BY customer_id;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -1686,7 +1686,7 @@ Return \`user_id\`, \`name\`, and \`mail\`. Order by \`user_id\`.
       { input: 'sql', expectedOutput: '1|Winston|winston@leetcode.com\n2|Jonathan|jonathanisreal@leetcode.com\n3|Annabelle|user.12@leetcode.com\n4|Sally|sally.w@leetcode.com\n5|Marwan|israel@leetcode.com', isHidden: true },
       { input: 'sql', expectedOutput: '1|Winston|winston@leetcode.com\n2|Jonathan|jonathanisreal@leetcode.com\n3|Annabelle|user.12@leetcode.com\n4|Sally|sally.w@leetcode.com\n5|Marwan|israel@leetcode.com', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\nSELECT user_id, name, mail\nFROM Users\nWHERE mail REGEXP "^[a-zA-Z][a-zA-Z0-9._-]*@leetcode\\\\.com$"\nORDER BY user_id;\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
   // ─────────────────────────────────────────────
@@ -1756,7 +1756,7 @@ Find the **median salary** of each company. Return \`id\`, \`company\`, and \`sa
       { input: 'sql', expectedOutput: '5|A|451\n6|A|513\n12|B|234\n9|B|1154\n14|C|2645', isHidden: true },
       { input: 'sql', expectedOutput: '5|A|451\n6|A|513\n12|B|234\n9|B|1154\n14|C|2645', isHidden: true },
     ],
-    starterCode: { sql: '-- Write your SQL query below\n-- Hint: use a self-join or subquery comparing salary counts per company\n' },
+    starterCode: { sql: '-- Write your SQL query below\n' },
   },
 
 ];

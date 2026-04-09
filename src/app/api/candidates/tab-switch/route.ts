@@ -19,8 +19,11 @@ export async function POST(request: NextRequest) {
             await Candidate.findByIdAndUpdate(candidateId, {
                 $inc: { tabSwitchCount: 1 },
             });
+        } else if (reason === 'no-face') {
+            await Candidate.findByIdAndUpdate(candidateId, {
+                $inc: { noFaceDetectCount: 1 },
+            });
         }
-        // If reason is 'no-face' or 'multiple-faces', we do nothing server-side currently except returning success.
         
         return NextResponse.json({ success: true });
     } catch (error: unknown) {

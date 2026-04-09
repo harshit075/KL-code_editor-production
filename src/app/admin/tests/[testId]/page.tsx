@@ -15,6 +15,7 @@ interface CandidateItem {
     totalScore: number;
     status: string;
     tabSwitchCount: number;
+    noFaceDetectCount: number;
     copyPasteDetected: boolean;
     startedAt: string;
     submittedAt: string;
@@ -222,7 +223,7 @@ export default function TestDetailPage() {
                                         <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Email</th>
                                         <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">College</th>
                                         <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Score</th>
-                                        <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Tab Switches</th>
+                                        <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Violations</th>
                                         <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Status</th>
                                         <th className="text-right px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Actions</th>
                                     </tr>
@@ -238,14 +239,21 @@ export default function TestDetailPage() {
                                                 <span className="text-slate-400">/{c.totalScore}</span>
                                             </td>
                                             <td className="px-5 py-3 text-sm">
-                                                <span className={c.tabSwitchCount > 3 ? 'text-red-400 font-medium' : 'text-slate-600'}>
-                                                    {c.tabSwitchCount}
-                                                </span>
-                                                {c.copyPasteDetected && (
-                                                    <span className="block mt-1 text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded w-max font-bold uppercase tracking-wider">
-                                                        Pasted Code
+                                                <div className="flex flex-col gap-1">
+                                                    <span className={c.tabSwitchCount > 3 ? 'text-red-400 font-medium' : 'text-slate-600'}>
+                                                        Tabs: {c.tabSwitchCount}
                                                     </span>
-                                                )}
+                                                    {c.noFaceDetectCount !== undefined && c.noFaceDetectCount > 0 && (
+                                                        <span className="text-amber-500 font-medium text-xs">
+                                                            No-Face: {c.noFaceDetectCount}
+                                                        </span>
+                                                    )}
+                                                    {c.copyPasteDetected && (
+                                                        <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded w-max font-bold uppercase tracking-wider">
+                                                            Pasted Code
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td className="px-5 py-3">
                                                 <span className={`text-xs font-medium px-2 py-1 rounded-full ${c.status === 'completed' ? 'bg-emerald-500/15 text-emerald-400' :
