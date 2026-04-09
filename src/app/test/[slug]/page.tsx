@@ -63,7 +63,7 @@ export default function TestRegistration() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: { width: 320, height: 240, facingMode: 'user' },
-                audio: false,
+                audio: true,
             });
             streamRef.current = stream;
             // Show live preview briefly
@@ -136,10 +136,14 @@ export default function TestRegistration() {
             setError('Enter a valid mobile number (exactly 10 digits).');
             return;
         }
+        if (/^(\d)\1{9}$/.test(trimmedMobile)) {
+            setError('Enter a valid and realistic mobile number instead of repeated digits.');
+            return;
+        }
 
         // Block submission if camera not granted
         if (cameraStatus !== 'granted') {
-            setError('Camera access is required to start the test. Please allow camera access first.');
+            setError('Camera and Microphone access are required to start the test. Please allow access first.');
             return;
         }
 
@@ -210,17 +214,17 @@ export default function TestRegistration() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-red-600 mb-2">Camera Access Required</h2>
+                            <h2 className="text-xl font-bold text-red-600 mb-2">Camera & Microphone Required</h2>
                             <p className="text-slate-600 text-sm leading-relaxed">
-                                This is a <strong>proctored test</strong>. Camera access is <strong>mandatory</strong> to
-                                ensure exam integrity. You cannot start the test with camera blocked.
+                                This is a <strong>proctored test</strong>. Camera and microphone access are <strong>mandatory</strong> to
+                                ensure exam integrity. You cannot start the test with access blocked.
                             </p>
                         </div>
                         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 text-left space-y-2">
                             <p className="font-semibold">How to enable camera:</p>
                             <ol className="list-decimal list-inside space-y-1 text-amber-700">
                                 <li>Click the 🔒 lock icon in your browser address bar</li>
-                                <li>Set <strong>Camera</strong> to <em>Allow</em></li>
+                                <li>Set <strong>Camera</strong> and <strong>Microphone</strong> to <em>Allow</em></li>
                                 <li>Refresh this page and try again</li>
                             </ol>
                         </div>
@@ -235,7 +239,7 @@ export default function TestRegistration() {
                                     Checking...
                                 </>
                             ) : (
-                                '🔄 Try Again — Enable Camera'
+                                '🔄 Try Again — Enable Access'
                             )}
                         </button>
                     </div>
@@ -312,9 +316,9 @@ export default function TestRegistration() {
                                 <div className="flex items-start gap-2">
                                     <span className="text-lg leading-none mt-0.5">✅</span>
                                     <div>
-                                        <p className="font-semibold">Camera Access Granted</p>
+                                        <p className="font-semibold">Media Access Granted</p>
                                         <p className="text-emerald-700 text-xs mt-0.5">
-                                            Your camera is ready. Proctoring will be active during the test.
+                                            Your camera & microphone are ready. Proctoring will be active during the test.
                                         </p>
                                         {/* Live preview thumbnail */}
                                         <video
@@ -335,9 +339,9 @@ export default function TestRegistration() {
                                 <div className="flex items-start gap-2">
                                     <span className="text-lg leading-none mt-0.5">📷</span>
                                     <div className="flex-1">
-                                        <p className="font-semibold">Camera Access Required</p>
+                                        <p className="font-semibold">Camera & Microphone Required</p>
                                         <p className="text-amber-700 text-xs mt-0.5">
-                                            This is a proctored test. You must allow camera access to begin.
+                                            This is a proctored test. You must allow camera & microphone access to begin.
                                         </p>
                                         <button
                                             type="button"
@@ -351,7 +355,7 @@ export default function TestRegistration() {
                                                     Requesting...
                                                 </>
                                             ) : (
-                                                '🎥 Allow Camera Access'
+                                                '🎥 Allow Access'
                                             )}
                                         </button>
                                     </div>
@@ -379,7 +383,7 @@ export default function TestRegistration() {
                                     Registering...
                                 </div>
                             ) : !cameraReady ? (
-                                '🔒 Allow Camera to Continue'
+                                '🔒 Allow Access to Continue'
                             ) : (
                                 'Start Coding Test →'
                             )}

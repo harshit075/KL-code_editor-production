@@ -471,7 +471,7 @@ export default function CreateTest() {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-2">Problem Title</label>
-                                    <input type="text" value={customTitle} onChange={e => setCustomTitle(e.target.value)} className="input-field" placeholder="e.g. Reverse a String or Print Star Pattern" />
+                                    <input type="text" value={customTitle} onChange={e => setCustomTitle(e.target.value)} className="input-field" placeholder={problemType === 'sql' ? "e.g. Find Highest Salary or Top Customers" : "e.g. Reverse a String or Print Star Pattern"} />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-2">Problem Description</label>

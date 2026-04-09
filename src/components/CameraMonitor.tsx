@@ -52,7 +52,7 @@ export default function CameraMonitor({
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { width: 320, height: 240, facingMode: 'user' },
-          audio: false,
+          audio: true,
         });
         streamRef.current = stream;
         if (videoRef.current) {

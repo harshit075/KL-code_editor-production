@@ -1,6 +1,8 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Problem {
     _id: string;
@@ -77,10 +79,17 @@ export default function ProblemPanel({ problem, currentIndex, totalProblems, onN
                         </div>
 
                         {/* Description */}
-                        <div className="prose prose-slate max-w-none">
-                            <div className="text-slate-700 leading-relaxed whitespace-pre-wrap text-base font-medium">
+                        <div className="prose prose-slate prose-indigo max-w-none 
+                            prose-headings:font-bold prose-headings:text-slate-900 
+                            prose-p:text-slate-700 prose-p:leading-relaxed prose-p:text-base prose-p:font-medium
+                            prose-table:border-collapse prose-table:w-full prose-table:border prose-table:border-slate-200
+                            prose-th:border prose-th:border-slate-200 prose-th:bg-slate-50 prose-th:px-4 prose-th:py-2 prose-th:text-slate-800
+                            prose-td:border prose-td:border-slate-200 prose-td:px-4 prose-td:py-2 prose-td:text-slate-600
+                            prose-code:text-indigo-600 prose-code:bg-indigo-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none"
+                        >
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                 {problem.description}
-                            </div>
+                            </ReactMarkdown>
                         </div>
 
                         {/* Constraints */}
@@ -171,9 +180,45 @@ export default function ProblemPanel({ problem, currentIndex, totalProblems, onN
                                     <span className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-indigo-400 transition-colors"></span>
                                     Expected Output
                                 </h3>
-                                <pre className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm text-emerald-400 font-mono overflow-x-auto shadow-inner leading-relaxed">
-                                    {problem.sampleOutput}
-                                </pre>
+                                {(() => {
+                                    if (problem.type === 'sql') {
+                                        try {
+                                            const data = JSON.parse(problem.sampleOutput);
+                                            if (Array.isArray(data) && data.length > 0) {
+                                                const keys = Object.keys(data[0]);
+                                                return (
+                                                    <div className="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden shadow-inner overflow-x-auto">
+                                                        <table className="w-full text-left text-sm text-slate-300 border-collapse">
+                                                            <thead className="bg-slate-800/80 text-xs uppercase border-b border-slate-700">
+                                                                <tr>
+                                                                    {keys.map(k => <th key={k} className="px-4 py-2 font-semibold">{k}</th>)}
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="font-mono">
+                                                                {data.map((row, i) => (
+                                                                    <tr key={i} className="border-b border-slate-800/60 hover:bg-slate-800/50">
+                                                                        {keys.map(k => (
+                                                                            <td key={k} className="px-4 py-2 whitespace-nowrap">
+                                                                                {row[k] !== null ? String(row[k]) : 'null'}
+                                                                            </td>
+                                                                        ))}
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                );
+                                            }
+                                        } catch {
+                                            // Fallback
+                                        }
+                                    }
+                                    return (
+                                        <pre className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm text-emerald-400 font-mono overflow-x-auto shadow-inner leading-relaxed">
+                                            {problem.sampleOutput}
+                                        </pre>
+                                    );
+                                })()}
                             </motion.div>
 
                             {/* How it works hint */}

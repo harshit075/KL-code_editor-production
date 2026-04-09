@@ -233,12 +233,57 @@ export default function IOConsole({
                                                 {copied ? 'Copied' : 'Copy'}
                                             </button>
                                         </div>
-                                        <pre
-                                            ref={outputRef}
-                                            className={`flex-1 min-h-0 overflow-auto text-sm font-mono whitespace-pre-wrap leading-relaxed p-3 ${stderr ? 'text-red-300' : 'text-emerald-300'}`}
-                                        >
-                                            {stderr || output}
-                                        </pre>
+                                        {(() => {
+                                            const text = stderr || output;
+                                            if (problemType === 'sql' && !stderr) {
+                                                try {
+                                                    const lines = text.trim().split('\n');
+                                                    if (lines.length > 0) {
+                                                        const parsedJSONs = lines.map(line => JSON.parse(line));
+                                                        const isArrayArr = Array.isArray(parsedJSONs[0]);
+                                                        const data = isArrayArr ? parsedJSONs.flat() : parsedJSONs;
+                                                        
+                                                        if (Array.isArray(data) && data.length > 0) {
+                                                            const keys = Object.keys(data[0]);
+                                                            return (
+                                                                <div className="flex-1 min-h-0 overflow-auto p-3">
+                                                                    <table className="w-full text-left text-sm text-slate-300 border-collapse border border-slate-700">
+                                                                        <thead className="bg-slate-800 text-xs uppercase sticky top-0">
+                                                                            <tr>
+                                                                                {keys.map(k => (
+                                                                                    <th key={k} className="px-4 py-2 border border-slate-700 font-semibold">{k}</th>
+                                                                                ))}
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody className="font-mono">
+                                                                            {data.map((row, i) => (
+                                                                                <tr key={i} className="hover:bg-slate-800/50">
+                                                                                    {keys.map(k => (
+                                                                                        <td key={k} className="px-4 py-2 border border-slate-700 whitespace-nowrap">
+                                                                                            {row[k] !== null ? String(row[k]) : 'null'}
+                                                                                        </td>
+                                                                                    ))}
+                                                                                </tr>
+                                                                            ))}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            );
+                                                        }
+                                                    }
+                                                } catch {
+                                                    // Fallback to text
+                                                }
+                                            }
+                                            return (
+                                                <pre
+                                                    ref={outputRef}
+                                                    className={`flex-1 min-h-0 overflow-auto text-sm font-mono whitespace-pre-wrap leading-relaxed p-3 ${stderr ? 'text-red-300' : 'text-emerald-300'}`}
+                                                >
+                                                    {text}
+                                                </pre>
+                                            );
+                                        })()}
                                     </div>
                                 )}
                             </div>
