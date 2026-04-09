@@ -26,7 +26,6 @@ export default function CameraMonitor({
   const [statusText, setStatusText] = useState('Loading AI models…');
   const [violationCount, setViolationCount] = useState(0);
   const [lastAlert, setLastAlert] = useState('');
-  const [minimized, setMinimized] = useState(false);
   const [modelsReady, setModelsReady] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
 
@@ -153,16 +152,6 @@ export default function CameraMonitor({
 
   return (
     <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-1.5 select-none">
-      {/* Minimized pill */}
-      {minimized ? (
-        <button
-          onClick={() => setMinimized(false)}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold text-white shadow-lg border ${borderColor} bg-gray-900/90 backdrop-blur-sm`}
-        >
-          <span className={`inline-block w-2 h-2 rounded-full ${status === 'active' ? 'bg-emerald-400' : status === 'warning' ? 'bg-red-400 animate-ping' : 'bg-gray-400'}`} />
-          Proctored {violationCount > 0 && `· ${violationCount}/${maxViolations} warns`}
-        </button>
-      ) : (
         <>
           {/* Warning banner above widget */}
           {status === 'warning' && lastAlert && (
@@ -196,14 +185,7 @@ export default function CameraMonitor({
               </span>
             </div>
 
-            {/* Minimize button */}
-            <button
-              onClick={() => setMinimized(true)}
-              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/40 hover:bg-black/70 text-white text-[10px] flex items-center justify-center transition-colors"
-              title="Minimize"
-            >
-              ─
-            </button>
+            {/* Removed minimize button as requested */}
 
             {/* Violation dots */}
             {maxViolations > 0 && (
@@ -241,10 +223,8 @@ export default function CameraMonitor({
             )}
           </div>
 
-          {/* Label */}
           <span className="text-[10px] text-slate-400 font-medium pr-0.5">🔒 Proctored Session</span>
         </>
-      )}
     </div>
   );
 }
