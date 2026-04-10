@@ -31,5 +31,7 @@ const SubmissionSchema = new Schema<ISubmission>({
 });
 
 SubmissionSchema.index({ candidateId: 1, problemId: 1, testId: 1 });
+// Performance index for admin dashboard count operations
+SubmissionSchema.index({ testId: 1 });
 
 export default mongoose.models.Submission || mongoose.model<ISubmission>('Submission', SubmissionSchema);

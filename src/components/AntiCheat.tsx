@@ -19,9 +19,15 @@ export default function AntiCheat({ candidateId, initialSwitchCount = 0, onViola
 
     useEffect(() => {
         let lastViolationTime = 0;
+        const mountTime = Date.now();
+        const GRACE_PERIOD = 10000; // 10 seconds grace period for initial permission popups
 
         const triggerViolation = (reason: string) => {
             const now = Date.now();
+            
+            // Ignore violations during the initial grace period (e.g. for camera/mic popups)
+            if (now - mountTime < GRACE_PERIOD) return;
+
             // Debounce violations by 2 seconds to avoid double counting blur+visibilitychange
             if (now - lastViolationTime < 2000) return;
             lastViolationTime = now;
@@ -70,26 +76,36 @@ export default function AntiCheat({ candidateId, initialSwitchCount = 0, onViola
         document.addEventListener('contextmenu', handleContextMenu);
         document.addEventListener('keydown', handleKeyDown);
 
-        // Request fullscreen
+        // Request fullscreen immediately and on first user interaction if blocked
         const requestFullscreen = async () => {
             try {
                 if (!document.fullscreenElement) {
                     await document.documentElement.requestFullscreen();
                 }
             } catch {
-                // Fullscreen may be blocked by browser
+                // Fullscreen blocked, waiting for user click
             }
         };
 
-        // Small delay to let component mount
-        const timer = setTimeout(requestFullscreen, 1000);
+        // Try immediately upon mount
+        requestFullscreen();
+
+        // Fallback: Enforce on first interaction if it didn't work immediately
+        const handleInteraction = () => {
+            requestFullscreen();
+        };
+
+        document.addEventListener('click', handleInteraction);
+        document.addEventListener('keydown', handleInteraction);
 
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('blur', handleBlur);
             document.removeEventListener('contextmenu', handleContextMenu);
+            // We do NOT remove handleKeyDown for anti-copy, so we need to merge logic or carefully remove the interaction listener
             document.removeEventListener('keydown', handleKeyDown);
-            clearTimeout(timer);
+            document.removeEventListener('click', handleInteraction);
+            document.removeEventListener('keydown', handleInteraction);
         };
     }, [candidateId, onViolation]);
 

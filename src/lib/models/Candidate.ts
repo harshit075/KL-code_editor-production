@@ -41,4 +41,8 @@ const CandidateSchema = new Schema<ICandidate>({
 // Compound index to prevent duplicate registrations
 CandidateSchema.index({ email: 1, testId: 1 }, { unique: true });
 
+// Performance indexes for admin dashboard aggregations
+CandidateSchema.index({ testId: 1 });
+CandidateSchema.index({ testId: 1, status: 1 });
+
 export default mongoose.models.Candidate || mongoose.model<ICandidate>('Candidate', CandidateSchema);
