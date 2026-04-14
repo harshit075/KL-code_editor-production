@@ -19,14 +19,8 @@ export default function AntiCheat({ candidateId, initialSwitchCount = 0, onViola
 
     useEffect(() => {
         let lastViolationTime = 0;
-        const mountTime = Date.now();
-        const GRACE_PERIOD = 10000; // 10 seconds grace period for initial permission popups
-
         const triggerViolation = (reason: string) => {
             const now = Date.now();
-            
-            // Ignore violations during the initial grace period (e.g. for camera/mic popups)
-            if (now - mountTime < GRACE_PERIOD) return;
 
             // Debounce violations by 2 seconds to avoid double counting blur+visibilitychange
             if (now - lastViolationTime < 2000) return;
@@ -34,15 +28,8 @@ export default function AntiCheat({ candidateId, initialSwitchCount = 0, onViola
 
             switchCountRef.current += 1;
 
-            // Report to server
-            fetch('/api/candidates/tab-switch', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ candidateId, reason }),
-            }).catch(() => { });
-
             if (onViolation) {
-                onViolation('tab-switch', switchCountRef.current);
+                onViolation(reason, switchCountRef.current);
             }
         };
 
@@ -50,10 +37,6 @@ export default function AntiCheat({ candidateId, initialSwitchCount = 0, onViola
             if (document.hidden) {
                 triggerViolation('tab-switch');
             }
-        };
-
-        const handleBlur = () => {
-            triggerViolation('blur');
         };
 
         const handleContextMenu = (e: MouseEvent) => {
@@ -72,7 +55,6 @@ export default function AntiCheat({ candidateId, initialSwitchCount = 0, onViola
         };
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('blur', handleBlur);
         document.addEventListener('contextmenu', handleContextMenu);
         document.addEventListener('keydown', handleKeyDown);
 
@@ -100,9 +82,7 @@ export default function AntiCheat({ candidateId, initialSwitchCount = 0, onViola
 
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('blur', handleBlur);
             document.removeEventListener('contextmenu', handleContextMenu);
-            // We do NOT remove handleKeyDown for anti-copy, so we need to merge logic or carefully remove the interaction listener
             document.removeEventListener('keydown', handleKeyDown);
             document.removeEventListener('click', handleInteraction);
             document.removeEventListener('keydown', handleInteraction);

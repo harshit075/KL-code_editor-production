@@ -18,6 +18,23 @@ interface TestItem {
     completedCount: number;
 }
 
+interface FlaggedCandidate {
+    _id: string;
+    fullName: string;
+    email: string;
+    testId: { _id: string; title: string };
+    tabSwitchCount: number;
+    noFaceDetectCount: number;
+    copyPasteDetected: boolean;
+    violationScreenshots: {
+        _id?: string;
+        reason: string;
+        cameraImage?: string;
+        screenImage?: string;
+        timestamp: string;
+    }[];
+}
+
 interface Analytics {
     totalTests: number;
     totalCandidates: number;
@@ -31,6 +48,8 @@ interface Analytics {
 export default function AdminDashboard() {
     const router = useRouter();
     const [tests, setTests] = useState<TestItem[]>([]);
+    const [flaggedCandidates, setFlaggedCandidates] = useState<FlaggedCandidate[]>([]);
+    const [viewingEvidence, setViewingEvidence] = useState<FlaggedCandidate | null>(null);
     const [analytics, setAnalytics] = useState<Analytics>({
         totalTests: 0,
         totalCandidates: 0,
@@ -69,6 +88,7 @@ export default function AdminDashboard() {
 
                 const data = await res.json();
                 setTests(data.tests || []);
+                setFlaggedCandidates(data.flaggedCandidates || []);
                 if (data.analytics) {
                     setAnalytics(data.analytics);
                 }
@@ -312,12 +332,140 @@ export default function AdminDashboard() {
                 )}
             </div>
         </div>
+
+        {/* Recent Violations / Flagged Candidates section */}
+        {flaggedCandidates.length > 0 && (
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-12">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-lg font-semibold text-red-600 flex items-center gap-2">
+                        <span>🚨</span> Recent Cheating Violations
+                    </h2>
+                </div>
+                <div className="glass-card overflow-hidden border border-red-500/20">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b border-red-500/20 bg-red-50/50">
+                                    <th className="text-left px-6 py-4 text-xs font-bold text-red-700 uppercase tracking-wider">Candidate Name</th>
+                                    <th className="text-left px-6 py-4 text-xs font-bold text-red-700 uppercase tracking-wider">Test context</th>
+                                    <th className="text-left px-6 py-4 text-xs font-bold text-red-700 uppercase tracking-wider">Violations Type</th>
+                                    <th className="text-right px-6 py-4 text-xs font-bold text-red-700 uppercase tracking-wider">Evidence</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-red-100">
+                                {flaggedCandidates.map((fc) => (
+                                    <tr key={fc._id} className="hover:bg-red-50 transition-smooth">
+                                        <td className="px-6 py-4">
+                                            <div className="font-medium text-slate-800">{fc.fullName}</div>
+                                            <div className="text-xs text-slate-500">{fc.email}</div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <Link href={`/admin/tests/${fc.testId?._id}`} className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 underline">
+                                                {fc.testId?.title}
+                                            </Link>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col gap-1">
+                                                <span className={fc.tabSwitchCount > 0 ? 'text-red-500 font-bold text-xs' : 'text-slate-500 text-xs'}>
+                                                    Tabs Switched: {fc.tabSwitchCount}
+                                                </span>
+                                                {fc.noFaceDetectCount > 0 && (
+                                                    <span className="text-amber-600 font-bold text-xs">
+                                                        No-Face: {fc.noFaceDetectCount}
+                                                    </span>
+                                                )}
+                                                {fc.copyPasteDetected && (
+                                                    <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded w-max font-bold uppercase tracking-wider">
+                                                        Pasted Code
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            {fc.violationScreenshots && fc.violationScreenshots.length > 0 ? (
+                                                <button
+                                                    onClick={() => setViewingEvidence(fc)}
+                                                    className="text-xs bg-red-100 text-red-700 hover:bg-red-200 px-4 py-2 rounded-lg font-bold transition-smooth inline-flex items-center gap-1.5"
+                                                >
+                                                    📷 View Screens ({fc.violationScreenshots.length})
+                                                </button>
+                                            ) : (
+                                                <span className="text-xs text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                                                    No Images
+                                                </span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        )}
         
         {/* Toast Notification */}
         {toastMessage && (
             <div className="fixed bottom-6 right-6 bg-slate-800 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-up z-50 border border-slate-700/50 backdrop-blur-md">
                 <span className="text-emerald-400 text-xl">✓</span>
                 <span className="text-sm font-medium">{toastMessage}</span>
+            </div>
+        )}
+
+        {/* Evidence Modal */}
+        {viewingEvidence && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(8px)' }}>
+                <div className="bg-slate-50 w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+                    <div className="flex justify-between items-center p-5 border-b border-slate-200 bg-white">
+                        <div>
+                            <h2 className="text-lg font-bold text-slate-800">Violation Evidence</h2>
+                            <p className="text-sm text-slate-500">Candidate: {viewingEvidence.fullName} • Test: {viewingEvidence.testId?.title}</p>
+                        </div>
+                        <button onClick={() => setViewingEvidence(null)} className="p-2 hover:bg-slate-100 rounded-full text-slate-500">✕</button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-slate-50">
+                        {viewingEvidence.violationScreenshots?.map((evidence, idx) => (
+                            <div key={idx} className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                                <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                                    <h3 className="font-semibold text-slate-800 capitalize">
+                                        Violation {idx + 1}: {evidence.reason.replace('-', ' ')}
+                                    </h3>
+                                    <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                                        {new Date(evidence.timestamp).toLocaleString()}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <h4 className="text-sm font-medium text-slate-600 flex items-center gap-2">📷 Candidate Camera</h4>
+                                        {evidence.cameraImage ? (
+                                            <div className="aspect-video bg-black rounded-lg overflow-hidden border border-slate-200 shadow-inner">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src={evidence.cameraImage} alt="Camera snapshot" className="w-full h-full object-contain" />
+                                            </div>
+                                        ) : (
+                                            <div className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center border border-slate-200 shadow-inner text-slate-400 text-sm">
+                                                No camera image available
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h4 className="text-sm font-medium text-slate-600 flex items-center gap-2">💻 Laptop Screen</h4>
+                                        {evidence.screenImage ? (
+                                            <div className="aspect-video bg-black rounded-lg overflow-hidden border border-slate-200 shadow-inner">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src={evidence.screenImage} alt="Screen snapshot" className="w-full h-full object-contain" />
+                                            </div>
+                                        ) : (
+                                            <div className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center border border-slate-200 shadow-inner text-slate-400 text-sm">
+                                                No screen image available
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         )}
         </>

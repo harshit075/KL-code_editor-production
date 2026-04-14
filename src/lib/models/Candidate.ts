@@ -14,6 +14,12 @@ export interface ICandidate extends Document {
     score: number;
     totalScore: number;
     status: 'registered' | 'in-progress' | 'completed' | 'timed-out';
+    violationScreenshots: {
+        reason: string;
+        cameraImage?: string;
+        screenImage?: string;
+        timestamp: Date;
+    }[];
     createdAt: Date;
 }
 
@@ -35,6 +41,12 @@ const CandidateSchema = new Schema<ICandidate>({
         enum: ['registered', 'in-progress', 'completed', 'timed-out'],
         default: 'registered',
     },
+    violationScreenshots: [{
+        reason: String,
+        cameraImage: String,
+        screenImage: String,
+        timestamp: { type: Date, default: Date.now }
+    }],
     createdAt: { type: Date, default: Date.now },
 });
 

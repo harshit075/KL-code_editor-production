@@ -29,17 +29,19 @@ export default function IOConsole({
     const [activeTab, setActiveTab] = useState<'input' | 'output'>('input');
     const [copied, setCopied] = useState(false);
     const outputRef = useRef<HTMLPreElement>(null);
+    const wasRunningRef = useRef(false);
 
-    // Auto-switch to output tab when running finishes and there's output
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Track when execution transitions from running → finished to auto-switch tabs.
+    // This is an intentional UI side-effect pattern that requires one extra render.
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
-        if (!isRunning && (output || stderr)) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
+        if (wasRunningRef.current && !isRunning && (output || stderr)) {
             setActiveTab('output');
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             if (!expanded) setExpanded(true);
         }
-    }, [isRunning, output, stderr]);
+        wasRunningRef.current = isRunning;
+    }, [isRunning, output, stderr, expanded]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     useEffect(() => {
         const handleFocus = () => {

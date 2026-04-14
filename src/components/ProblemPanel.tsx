@@ -32,6 +32,16 @@ export default function ProblemPanel({ problem, currentIndex, totalProblems, onN
         hard: 'badge-hard',
     }[problem.difficulty];
 
+    const sqlData = (() => {
+        if (problem.type === 'sql') {
+            try {
+                const data = JSON.parse(problem.sampleOutput);
+                if (Array.isArray(data) && data.length > 0) return data;
+            } catch {}
+        }
+        return null;
+    })();
+
     return (
         <div className="flex flex-col h-full overflow-hidden bg-white/50 relative">
             {/* Problem navigation */}
@@ -180,45 +190,32 @@ export default function ProblemPanel({ problem, currentIndex, totalProblems, onN
                                     <span className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-indigo-400 transition-colors"></span>
                                     Expected Output
                                 </h3>
-                                {(() => {
-                                    if (problem.type === 'sql') {
-                                        try {
-                                            const data = JSON.parse(problem.sampleOutput);
-                                            if (Array.isArray(data) && data.length > 0) {
-                                                const keys = Object.keys(data[0]);
-                                                return (
-                                                    <div className="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden shadow-inner overflow-x-auto">
-                                                        <table className="w-full text-left text-sm text-slate-300 border-collapse">
-                                                            <thead className="bg-slate-800/80 text-xs uppercase border-b border-slate-700">
-                                                                <tr>
-                                                                    {keys.map(k => <th key={k} className="px-4 py-2 font-semibold">{k}</th>)}
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody className="font-mono">
-                                                                {data.map((row, i) => (
-                                                                    <tr key={i} className="border-b border-slate-800/60 hover:bg-slate-800/50">
-                                                                        {keys.map(k => (
-                                                                            <td key={k} className="px-4 py-2 whitespace-nowrap">
-                                                                                {row[k] !== null ? String(row[k]) : 'null'}
-                                                                            </td>
-                                                                        ))}
-                                                                    </tr>
-                                                                ))}
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                );
-                                            }
-                                        } catch {
-                                            // Fallback
-                                        }
-                                    }
-                                    return (
-                                        <pre className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm text-emerald-400 font-mono overflow-x-auto shadow-inner leading-relaxed">
-                                            {problem.sampleOutput}
-                                        </pre>
-                                    );
-                                })()}
+                                {sqlData ? (
+                                    <div className="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden shadow-inner overflow-x-auto">
+                                        <table className="w-full text-left text-sm text-slate-300 border-collapse">
+                                            <thead className="bg-slate-800/80 text-xs uppercase border-b border-slate-700">
+                                                <tr>
+                                                    {Object.keys(sqlData[0]).map(k => <th key={k} className="px-4 py-2 font-semibold">{k}</th>)}
+                                                </tr>
+                                            </thead>
+                                            <tbody className="font-mono">
+                                                {sqlData.map((row, i) => (
+                                                    <tr key={i} className="border-b border-slate-800/60 hover:bg-slate-800/50">
+                                                        {Object.keys(sqlData[0]).map(k => (
+                                                            <td key={k} className="px-4 py-2 whitespace-nowrap">
+                                                                {row[k] !== null ? String(row[k]) : 'null'}
+                                                            </td>
+                                                        ))}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <pre className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm text-emerald-400 font-mono overflow-x-auto shadow-inner leading-relaxed">
+                                        {problem.sampleOutput}
+                                    </pre>
+                                )}
                             </motion.div>
 
                             {/* How it works hint */}

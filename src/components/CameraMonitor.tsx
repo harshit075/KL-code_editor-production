@@ -7,6 +7,7 @@ interface CameraMonitorProps {
   onViolation: (type: 'no-face' | 'multiple-faces', count: number) => void;
   onPermissionDenied?: () => void;
   maxViolations?: number;
+  onCaptureReady?: (captureFn: () => string | null) => void;
 }
 
 type MonitorStatus = 'loading-models' | 'waiting-camera' | 'active' | 'warning' | 'denied' | 'error';
@@ -15,12 +16,14 @@ export default function CameraMonitor({
   onViolation,
   onPermissionDenied,
   maxViolations = 3,
+  onCaptureReady,
 }: CameraMonitorProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const consecutiveMissRef = useRef(0);   // consecutive no-face frames before issuing warning
+  const consecutiveMissRef = useRef(0);
   const violationCountRef = useRef(0);
+  const captureReadyFired = useRef(false);
 
   const [status, setStatus] = useState<MonitorStatus>('loading-models');
   const [statusText, setStatusText] = useState('Loading AI models…');
@@ -29,7 +32,34 @@ export default function CameraMonitor({
   const [modelsReady, setModelsReady] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
 
-  // ── 1. Load tiny face-detector model ──────────────────────────────────
+  // Store callbacks in refs to avoid re-triggering effects
+  const onCaptureReadyRef = useRef(onCaptureReady);
+  const onPermissionDeniedRef = useRef(onPermissionDenied);
+  onCaptureReadyRef.current = onCaptureReady;
+  onPermissionDeniedRef.current = onPermissionDenied;
+
+  // Stable capture function
+  const captureFrame = useCallback((): string | null => {
+    const video = videoRef.current;
+    if (!video || video.readyState < 2) {
+      console.warn('[CameraMonitor] captureFrame: video not ready', video?.readyState);
+      return null;
+    }
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 320;
+      canvas.height = video.videoHeight || 240;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL('image/jpeg', 0.6);
+    } catch (e) {
+      console.error('[CameraMonitor] capture failed:', e);
+      return null;
+    }
+  }, []);
+
+  // ── 1. Load face-detector model ──────────────────────────────────
   useEffect(() => {
     const load = async () => {
       try {
@@ -46,37 +76,74 @@ export default function CameraMonitor({
     load();
   }, []);
 
-  // ── 2. Start webcam ────────────────────────────────────────────────────
+  // ── 2. Start webcam ──────────────────────────────────────────────
   useEffect(() => {
+    let cancelled = false;
+
     const startCam = async () => {
       try {
+        console.log('[CameraMonitor] Requesting getUserMedia...');
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { width: 320, height: 240, facingMode: 'user' },
           audio: true,
         });
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.onloadedmetadata = () => {
-            videoRef.current?.play();
-            setCameraReady(true);
-            setStatus('active');
-            setStatusText('Monitoring active');
-          };
+
+        if (cancelled) {
+          stream.getTracks().forEach(t => t.stop());
+          return;
         }
-      } catch {
-        setStatus('denied');
-        setStatusText('Camera access denied');
-        onPermissionDenied?.();
+
+        streamRef.current = stream;
+        const video = videoRef.current;
+        if (!video) return;
+
+        video.srcObject = stream;
+        
+        // Use both event listener and a polling fallback
+        const handleReady = () => {
+          if (cancelled) return;
+          console.log('[CameraMonitor] Video ready, readyState:', video.readyState);
+          video.play().catch(e => console.log('Camera play error:', e));
+          setCameraReady(true);
+          setStatus('active');
+          setStatusText('Monitoring active');
+
+          if (!captureReadyFired.current) {
+            captureReadyFired.current = true;
+            onCaptureReadyRef.current?.(captureFrame);
+          }
+        };
+
+        if (video.readyState >= 1) {
+          handleReady();
+        } else {
+          video.onloadedmetadata = handleReady;
+        }
+
+      } catch (err) {
+        console.error('[CameraMonitor] getUserMedia failed:', err);
+        if (!cancelled) {
+          setStatus('denied');
+          setStatusText('Camera access denied');
+          onPermissionDeniedRef.current?.();
+        }
       }
     };
-    startCam();
-    return () => {
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-    };
-  }, [onPermissionDenied]);
 
-  // ── 3. Detection loop ──────────────────────────────────────────────────
+    startCam();
+
+    return () => {
+      cancelled = true;
+      // Stop all tracks on cleanup
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── 3. Detection loop ──────────────────────────────────────────────
   const runDetection = useCallback(async () => {
     if (!videoRef.current || !modelsReady || !cameraReady) return;
     if (violationCountRef.current >= maxViolations) return;
@@ -91,7 +158,6 @@ export default function CameraMonitor({
       if (count === 0) {
         consecutiveMissRef.current += 1;
         setStatusText(`No face (${consecutiveMissRef.current}/2)`);
-        // Require 2 consecutive misses to avoid false positives
         if (consecutiveMissRef.current >= 2) {
           consecutiveMissRef.current = 0;
           violationCountRef.current += 1;
@@ -129,7 +195,7 @@ export default function CameraMonitor({
 
   useEffect(() => {
     if (!modelsReady || !cameraReady) return;
-    intervalRef.current = setInterval(runDetection, 6000); // every 6 s
+    intervalRef.current = setInterval(runDetection, 6000);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
@@ -172,10 +238,11 @@ export default function CameraMonitor({
             {/* Video */}
             <video
               ref={videoRef}
+              autoPlay
               muted
               playsInline
               className="w-full h-full object-cover"
-              style={{ transform: 'scaleX(-1)' }}   // mirror
+              style={{ transform: 'scaleX(-1)' }}
             />
 
             {/* Top badge */}
@@ -184,8 +251,6 @@ export default function CameraMonitor({
                 {badge.text}
               </span>
             </div>
-
-            {/* Removed minimize button as requested */}
 
             {/* Violation dots */}
             {maxViolations > 0 && (

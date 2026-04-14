@@ -19,6 +19,13 @@ interface CandidateItem {
     copyPasteDetected: boolean;
     startedAt: string;
     submittedAt: string;
+    violationScreenshots?: {
+        _id?: string;
+        reason: string;
+        cameraImage?: string;
+        screenImage?: string;
+        timestamp: string;
+    }[];
 }
 
 interface SubmissionItem {
@@ -61,6 +68,7 @@ export default function TestDetailPage() {
     const [viewingCode, setViewingCode] = useState<SubmissionItem | null>(null);
     const [fullscreenCode, setFullscreenCode] = useState<{ code: string; language: string; title: string } | null>(null);
     const [copiedIdx, setCopiedIdx] = useState<string | null>(null);
+    const [viewingEvidence, setViewingEvidence] = useState<CandidateItem | null>(null);
 
     const handleCopy = useCallback((code: string, key: string) => {
         navigator.clipboard.writeText(code);
@@ -253,6 +261,14 @@ export default function TestDetailPage() {
                                                             Pasted Code
                                                         </span>
                                                     )}
+                                                    {c.violationScreenshots && c.violationScreenshots.length > 0 && (
+                                                        <button 
+                                                            onClick={() => setViewingEvidence(c)}
+                                                            className="text-xs mt-1 text-indigo-500 hover:text-indigo-600 text-left underline w-max font-semibold"
+                                                        >
+                                                            View Evidence ({c.violationScreenshots.length})
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-5 py-3">
@@ -418,6 +434,63 @@ export default function TestDetailPage() {
                             padding: { top: 16, bottom: 16 },
                         }}
                     />
+                </div>
+            </div>
+        )}
+
+        {/* Evidence Modal */}
+        {viewingEvidence && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(8px)' }}>
+                <div className="bg-slate-50 w-full max-w-5xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+                    <div className="flex justify-between items-center p-5 border-b border-slate-200 bg-white">
+                        <div>
+                            <h2 className="text-lg font-bold text-slate-800">Violation Evidence</h2>
+                            <p className="text-sm text-slate-500">Candidate: {viewingEvidence.fullName}</p>
+                        </div>
+                        <button onClick={() => setViewingEvidence(null)} className="p-2 hover:bg-slate-100 rounded-full text-slate-500">✕</button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-slate-50">
+                        {viewingEvidence.violationScreenshots?.map((evidence, idx) => (
+                            <div key={idx} className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                                <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                                    <h3 className="font-semibold text-slate-800 capitalize">
+                                        Violation {idx + 1}: {evidence.reason.replace('-', ' ')}
+                                    </h3>
+                                    <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                                        {new Date(evidence.timestamp).toLocaleString()}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <h4 className="text-sm font-medium text-slate-600 flex items-center gap-2">📷 Candidate Camera</h4>
+                                        {evidence.cameraImage ? (
+                                            <div className="aspect-video bg-black rounded-lg overflow-hidden border border-slate-200 shadow-inner">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src={evidence.cameraImage} alt="Camera snapshot" className="w-full h-full object-contain" />
+                                            </div>
+                                        ) : (
+                                            <div className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center border border-slate-200 shadow-inner text-slate-400 text-sm">
+                                                No camera image available
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h4 className="text-sm font-medium text-slate-600 flex items-center gap-2">💻 Laptop Screen</h4>
+                                        {evidence.screenImage ? (
+                                            <div className="aspect-video bg-black rounded-lg overflow-hidden border border-slate-200 shadow-inner">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src={evidence.screenImage} alt="Screen snapshot" className="w-full h-full object-contain" />
+                                            </div>
+                                        ) : (
+                                            <div className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center border border-slate-200 shadow-inner text-slate-400 text-sm">
+                                                No screen image available
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         )}

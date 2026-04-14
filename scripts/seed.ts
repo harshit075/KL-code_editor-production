@@ -716,14 +716,14 @@ async function seed() {
 
   // Seed admin (password: admin123)
   const bcrypt = await import('bcryptjs');
-  const hashedPassword = await bcrypt.hash('admin123', 12);
+  const hashedPassword = await bcrypt.hash('code@Admin321', 12);
   // await Admin.deleteMany({});
   await Admin.findOneAndUpdate(
     { email: 'admin@kadellabs.com' },
     { email: 'admin@kadellabs.com', password: hashedPassword, name: 'Admin' },
     { upsert: true }
   );
-  console.log('Seeded admin: admin@kadellabs.com / admin123');
+  console.log('Seeded admin: admin@kadellabs.com / code@Admin321');
 
   await mongoose.disconnect();
   console.log('Done!');

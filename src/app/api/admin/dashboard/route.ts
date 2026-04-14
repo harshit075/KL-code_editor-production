@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
         const testIds = tests.map(t => (t._id as unknown));
 
         // ── Step 2: Run all aggregations in parallel ──────────────────────────
-        const [candidateStats, completedCandidates, scoredCandidates, totalSubmissions] = await Promise.all([
+        const [candidateStats, completedCandidates, scoredCandidates, flaggedCandidates, totalSubmissions] = await Promise.all([
             // Count + completion breakdown per test (for the tests table)
             Candidate.aggregate([
                 { $match: { testId: { $in: testIds } } },
@@ -57,6 +57,22 @@ export async function GET(request: NextRequest) {
                 status: { $in: ['completed', 'timed-out'] },
             })
                 .select('score totalScore')
+                .lean(),
+
+            // Flagged Candidates (with screenshots OR tab switches or other violations)
+            Candidate.find({ 
+                testId: { $in: testIds },
+                $or: [
+                    { 'violationScreenshots.0': { $exists: true } },
+                    { tabSwitchCount: { $gt: 0 } },
+                    { noFaceDetectCount: { $gt: 0 } },
+                    { copyPasteDetected: true }
+                ]
+            })
+                .populate('testId', 'title')
+                .select('fullName email violationScreenshots testId tabSwitchCount noFaceDetectCount copyPasteDetected')
+                .sort({ 'violationScreenshots.0.timestamp': -1 })
+                .limit(10)
                 .lean(),
 
             // Total submissions
@@ -100,7 +116,7 @@ export async function GET(request: NextRequest) {
             totalSubmissions,
         };
 
-        return NextResponse.json({ tests: testsWithStats, analytics });
+        return NextResponse.json({ tests: testsWithStats, analytics, flaggedCandidates });
     } catch (error: unknown) {
         console.error('Dashboard fetch error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

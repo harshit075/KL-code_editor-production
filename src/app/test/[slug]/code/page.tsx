@@ -8,6 +8,7 @@ import IOConsole from '@/components/IOConsole';
 import Timer from '@/components/Timer';
 import AntiCheat from '@/components/AntiCheat';
 import CameraMonitor from '@/components/CameraMonitor';
+import ScreenMonitor from '@/components/ScreenMonitor';
 import { motion } from 'framer-motion';
 import { Play, Check, CheckCircle2 } from 'lucide-react';
 
@@ -61,7 +62,11 @@ export default function CodingEnvironment() {
   const [noFaceToast, setNoFaceToast] = useState(false);
   const [isEndingTest, setIsEndingTest] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+
   const autosaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const cameraCaptureRef = useRef<(() => string | null) | null>(null);
+  const screenCaptureRef = useRef<(() => string | null) | null>(null);
 
   const currentProblem = problems[currentProblemIndex];
   const currentCode = currentProblem ? (codes[currentProblem._id]?.[language] || '') : '';
@@ -310,12 +315,41 @@ export default function CodingEnvironment() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentProblem]);
 
-  const handleTabViolation = useCallback((_type: string, count: number) => {
+  const handleTabViolation = useCallback(async (type: string, count: number) => {
     setTabSwitchCount(count);
+    
+    // Capture screenshots
+    const hasCameraCapture = !!cameraCaptureRef.current;
+    const hasScreenCapture = !!screenCaptureRef.current;
+    
+    const cameraImage = cameraCaptureRef.current ? cameraCaptureRef.current() : null;
+    const screenImage = screenCaptureRef.current ? screenCaptureRef.current() : null;
+
+    console.log('[AntiCheat] Tab violation detected:', {
+      type,
+      count,
+      hasCameraCapture,
+      hasScreenCapture,
+      cameraImageSize: cameraImage ? cameraImage.length : 0,
+      screenImageSize: screenImage ? screenImage.length : 0,
+    });
+
+    // Report to backend
+    fetch('/api/candidates/tab-switch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        candidateId, 
+        reason: type,
+        cameraImage: cameraImage || undefined,
+        screenImage: screenImage || undefined,
+      }),
+    }).catch((err) => console.error('[AntiCheat] Failed to report violation:', err));
+
     if (count >= 3) {
       handleFinalSubmit();
     }
-  }, [handleFinalSubmit]);
+  }, [candidateId, handleFinalSubmit]);
 
   const handleCameraViolation = useCallback((type: 'no-face' | 'multiple-faces', count: number) => {
     // Report to server
@@ -352,14 +386,7 @@ export default function CodingEnvironment() {
     setCameraViolationCount(-1); // sentinel: denied
   }, []);
 
-  const handlePaste = useCallback(() => {
-    if (!candidateId) return;
-    fetch('/api/candidates/tab-switch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ candidateId, reason: 'paste' }),
-    }).catch(() => {});
-  }, [candidateId]);
+
 
   if (loading) {
     return (
@@ -419,9 +446,14 @@ export default function CodingEnvironment() {
         initialSwitchCount={tabSwitchCount} 
         onViolation={handleTabViolation} 
       />
+      <ScreenMonitor
+        onCaptureReady={(fn) => { screenCaptureRef.current = fn; }}
+        onPermissionDenied={() => {}}
+      />
       <CameraMonitor
         onViolation={handleCameraViolation}
         onPermissionDenied={handleCameraPermissionDenied}
+        onCaptureReady={(fn) => { cameraCaptureRef.current = fn; }}
         maxViolations={3}
       />
 

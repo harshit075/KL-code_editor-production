@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Candidate from '@/lib/models/Candidate';
-import Submission from '@/lib/models/Submission';
+
 
 export async function POST(request: NextRequest) {
     try {
